@@ -3,6 +3,8 @@ package org.eqasim.bavaria;
 import java.util.Collections;
 import java.util.Set;
 
+import org.eqasim.bavaria.mode_choice.BavariaModeChoiceModule;
+import org.eqasim.core.components.config.EqasimConfigGroup;
 import org.eqasim.core.scenario.validation.VehiclesValidator;
 import org.eqasim.core.simulation.vdf.VDFConfigGroup;
 import org.eqasim.core.simulation.vdf.engine.VDFEngineConfigGroup;
@@ -47,6 +49,12 @@ public class RunSimulation {
 
 		cmd.applyConfiguration(config);
 		VehiclesValidator.validate(config);
+
+		EqasimConfigGroup eqasimConfig = EqasimConfigGroup.get(config);
+		if (!eqasimConfig.getEstimators().get("walk").equals(BavariaModeChoiceModule.WALK_ESTIMATOR_NAME)) {
+			throw new IllegalArgumentException(
+					"Config needs to be use bavariaWalk for mode choice. Please define BavariaWalkUtilityEstimator in estimators for mode walk.");
+		}	
 
 		Scenario scenario = ScenarioUtils.createScenario(config);
 		configurator.configureScenario(scenario);

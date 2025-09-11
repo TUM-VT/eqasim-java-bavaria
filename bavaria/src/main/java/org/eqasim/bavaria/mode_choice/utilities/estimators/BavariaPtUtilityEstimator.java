@@ -45,6 +45,9 @@ public class BavariaPtUtilityEstimator implements UtilityEstimator {
 	}
 
 	protected double estimateWaitingTimeUtility(BavariaPtVariables variables) {
+		//if (highIncome) {
+			
+		//}
 		return parameters.pt.betaWaitingTime_u_min * variables.waitingTime_min;
 	}
 

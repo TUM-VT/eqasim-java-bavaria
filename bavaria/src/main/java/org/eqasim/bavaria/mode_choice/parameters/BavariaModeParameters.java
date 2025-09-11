@@ -3,6 +3,21 @@ package org.eqasim.bavaria.mode_choice.parameters;
 import org.eqasim.core.simulation.mode_choice.parameters.ModeParameters;
 
 public class BavariaModeParameters extends ModeParameters {
+
+
+	public class BavariaPtParameters {
+		public double betaDrivingPermit_u;
+		public double onlyBus_u;
+	}
+
+	public class BavariaCarParameters {
+		public double isHighIncome;
+	}
+	
+	public class BavariaWalkParameters {
+		public double isHighIncome;
+	}
+
 	public class BavariaCarPassengerParameters {
 		public double alpha_u;
 		public double betaInVehicleTravelTime_u_min;
@@ -11,12 +26,11 @@ public class BavariaModeParameters extends ModeParameters {
 
 	public final BavariaCarPassengerParameters carPassenger = new BavariaCarPassengerParameters();
 
-	public class BavariaPtParameters {
-		public double betaDrivingPermit_u;
-		public double onlyBus_u;
-	}
-
 	public final BavariaPtParameters bavariaPt = new BavariaPtParameters();
+
+	public final BavariaCarParameters bavariaCar = new BavariaCarParameters();
+
+	public final BavariaWalkParameters bavariaWalk = new BavariaWalkParameters();
 
 	public double betaAccessTime_u_min;
 
@@ -28,12 +42,13 @@ public class BavariaModeParameters extends ModeParameters {
 
 		// Cost
 		parameters.betaCost_u_MU = -0.310998;
-		parameters.lambdaCostEuclideanDistance = -0.257501;
+		parameters.lambdaCostEuclideanDistance = 0.0; //-0.257501;
 		parameters.referenceEuclideanDistance_km = 4.4;
 
 		// Car
 		parameters.car.alpha_u = 0.4; // -0.201465;
 		parameters.car.betaTravelTime_u_min = -0.042431;
+		parameters.bavariaCar.isHighIncome = -0.0225;
 
 		// Car passenger
 		parameters.carPassenger.alpha_u = -1.4; // -1.713201;
@@ -56,6 +71,7 @@ public class BavariaModeParameters extends ModeParameters {
 		// Walk
 		parameters.walk.alpha_u = 1.8; // 1.685152;
 		parameters.walk.betaTravelTime_u_min = -0.162285;
+		parameters.bavariaWalk.isHighIncome = -0.0217;
 
 		return parameters;
 	}

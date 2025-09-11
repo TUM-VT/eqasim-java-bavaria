@@ -63,8 +63,11 @@ public class RunAdaptConfig {
 
 		eqasimConfig.setEstimator(TransportMode.car, BavariaModeChoiceModule.CAR_ESTIMATOR_NAME);
 		eqasimConfig.setEstimator(TransportMode.pt, BavariaModeChoiceModule.PT_ESTIMATOR_NAME);
+		
 		eqasimConfig.setEstimator(BavariaModeChoiceModule.BICYCLE, BavariaModeChoiceModule.BICYCLE_ESTIMATOR_NAME);
 		eqasimConfig.setEstimator(BavariaModeChoiceModule.CAR_PASSENGER, BavariaModeChoiceModule.CAR_PASSENGER_ESTIMATOR_NAME);
+		eqasimConfig.setEstimator(TransportMode.walk, BavariaModeChoiceModule.WALK_ESTIMATOR_NAME);
+		
 		eqasimConfig.removeEstimator(TransportMode.bike);
 
 		// Discrete mode choice
