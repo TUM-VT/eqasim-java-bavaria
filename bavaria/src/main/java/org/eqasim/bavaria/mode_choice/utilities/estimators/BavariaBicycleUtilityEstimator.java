@@ -17,14 +17,14 @@ import com.google.inject.Inject;
 
 public class BavariaBicycleUtilityEstimator extends BikeUtilityEstimator {
 	private final BavariaModeParameters parameters;
-	//private final BavariaPersonPredictor personPredictor;
+	private final BavariaPersonPredictor bavariaPersonPredictor;
 
 	@Inject
-	public BavariaBicycleUtilityEstimator(BavariaModeParameters parameters, PersonPredictor personPredictor,
+	public BavariaBicycleUtilityEstimator(BavariaModeParameters parameters, PersonPredictor personPredictor, BavariaPersonPredictor bavariaPersonPredictor,
 			BikePredictor predictor) {
 		super(parameters, personPredictor, predictor);
 		this.parameters = parameters;
-	    ///this.personPredictor = personPredictor;
+	    this.bavariaPersonPredictor = bavariaPersonPredictor;
 	}
 
 	protected double estimateAccessEgressTimeUtility(CarVariables variables) {
@@ -37,7 +37,7 @@ public class BavariaBicycleUtilityEstimator extends BikeUtilityEstimator {
 
 	@Override
 	public double estimateUtility(Person person, DiscreteModeChoiceTrip trip, List<? extends PlanElement> elements) {
-        BavariaPersonVariables personVariables = personPredictor.predictVariables(person, trip, elements);
+        BavariaPersonVariables personVariables = bavariaPersonPredictor.predictVariables(person, trip, elements);
 
 		double utility = 0.0;
 

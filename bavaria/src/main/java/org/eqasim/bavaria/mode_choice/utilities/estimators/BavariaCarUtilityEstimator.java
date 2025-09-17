@@ -8,7 +8,6 @@ import org.eqasim.bavaria.mode_choice.utilities.variables.BavariaPersonVariables
 import org.eqasim.core.simulation.mode_choice.utilities.estimators.CarUtilityEstimator;
 import org.eqasim.core.simulation.mode_choice.utilities.predictors.CarPredictor;
 import org.eqasim.core.simulation.mode_choice.utilities.variables.CarVariables;
-import org.eqasim.core.simulation.mode_choice.utilities.variables.PersonVariables;
 import org.matsim.api.core.v01.population.Person;
 import org.matsim.api.core.v01.population.PlanElement;
 import org.matsim.contribs.discrete_mode_choice.model.DiscreteModeChoiceTrip;
@@ -37,6 +36,18 @@ public class BavariaCarUtilityEstimator extends CarUtilityEstimator {
 		return variables.isHighIncome ? parameters.bavariaCar.isHighIncome : 0.0;
 	}
 
+	protected double estimatePtSubscriptionUtility(BavariaPersonVariables variables) {
+		return variables.hasSubscription ? parameters.bavariaCar.hasPtSubscription : 0.0;
+	}
+
+	protected double estimateWorkPurposeUtility(DiscreteModeChoiceTrip trip) {
+		return trip.getDestinationActivity().getType().equals("work") ? parameters.bavariaCar.isWorkTrip : 0.0;
+	}
+
+	protected double estimateShoppingPurposeUtility(DiscreteModeChoiceTrip trip) {
+		return trip.getDestinationActivity().getType().equals("shop") ? parameters.bavariaCar.isShoppingTrip : 0.0;
+	}
+
 
 	@Override
 	public double estimateUtility(Person person, DiscreteModeChoiceTrip trip, List<? extends PlanElement> elements) {
@@ -44,12 +55,15 @@ public class BavariaCarUtilityEstimator extends CarUtilityEstimator {
 		BavariaPersonVariables personVariables = personPredictor.predictVariables(person, trip, elements);
 
 		double utility = 0.0;
-
+		
 		utility += estimateConstantUtility();
 		utility += estimateTravelTimeUtility(variables);
 		utility += estimateAccessEgressTimeUtility(variables);
 		utility += estimateMonetaryCostUtility(variables);
 		utility += estimateHighIncomeUtility(personVariables);
+		utility += estimatePtSubscriptionUtility(personVariables);
+		utility += estimateWorkPurposeUtility(trip);
+		utility += estimateShoppingPurposeUtility(trip);
 
 		return utility;
 	}

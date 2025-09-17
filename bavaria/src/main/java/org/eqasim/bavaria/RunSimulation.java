@@ -53,8 +53,8 @@ public class RunSimulation {
 		EqasimConfigGroup eqasimConfig = EqasimConfigGroup.get(config);
 		if (!eqasimConfig.getEstimators().get("walk").equals(BavariaModeChoiceModule.WALK_ESTIMATOR_NAME)) {
 			throw new IllegalArgumentException(
-					"Config needs to be use bavariaWalk for mode choice. Please define BavariaWalkUtilityEstimator in estimators for mode walk.");
-		}	
+					"Config needs to use bavariaWalk for mode choice. Please define BavariaWalkUtilityEstimator in estimators for mode walk.");
+		}
 
 		Scenario scenario = ScenarioUtils.createScenario(config);
 		configurator.configureScenario(scenario);

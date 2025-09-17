@@ -47,6 +47,14 @@ public class BavariaCarPassengerUtilityEstimator implements UtilityEstimator {
 		return variables.isHighIncome ? parameters.bavariaCarPassenger.isHighIncome : 0.0;
 	}
 
+	protected double estimateWorkPurposeUtility(DiscreteModeChoiceTrip trip) {
+		return trip.getDestinationActivity().getType().equals("work") ? parameters.bavariaCarPassenger.isWorkTrip : 0.0;
+	}
+
+	protected double estimateShoppingPurposeUtility(DiscreteModeChoiceTrip trip) {
+		return trip.getDestinationActivity().getType().equals("shop") ? parameters.bavariaCarPassenger.isShoppingTrip : 0.0;
+	}
+
 	@Override
 	public double estimateUtility(Person person, DiscreteModeChoiceTrip trip, List<? extends PlanElement> elements) {
 		BavariaCarPassengerVariables variables = predictor.predictVariables(person, trip, elements);
@@ -59,6 +67,8 @@ public class BavariaCarPassengerUtilityEstimator implements UtilityEstimator {
 		utility += estimateAccessEgressTimeUtility(variables);
 		utility += estimateDrivingPermit(personVariables);
 		utility += estimaleHighIncomeUtility(personVariables);
+		utility += estimateWorkPurposeUtility(trip);
+		utility += estimateShoppingPurposeUtility(trip);
 
 		return utility;
 	}

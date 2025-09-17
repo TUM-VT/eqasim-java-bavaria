@@ -4,12 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.eqasim.core.components.config.EqasimConfigGroup;
-import org.eqasim.core.simulation.mode_choice.AbstractEqasimExtension;
-import org.eqasim.core.simulation.mode_choice.ParameterDefinition;
-import org.eqasim.core.simulation.mode_choice.parameters.ModeParameters;
-import org.eqasim.core.simulation.mode_choice.tour_finder.ActivityTourFinderWithExcludedActivities;
-import org.eqasim.core.simulation.mode_choice.utilities.estimators.BikeUtilityEstimator;
 import org.eqasim.bavaria.mode_choice.costs.BavariaCarCostModel;
 import org.eqasim.bavaria.mode_choice.costs.BavariaPtCostModel;
 import org.eqasim.bavaria.mode_choice.parameters.BavariaCostParameters;
@@ -18,9 +12,15 @@ import org.eqasim.bavaria.mode_choice.utilities.estimators.BavariaBicycleUtility
 import org.eqasim.bavaria.mode_choice.utilities.estimators.BavariaCarPassengerUtilityEstimator;
 import org.eqasim.bavaria.mode_choice.utilities.estimators.BavariaCarUtilityEstimator;
 import org.eqasim.bavaria.mode_choice.utilities.estimators.BavariaPtUtilityEstimator;
+import org.eqasim.bavaria.mode_choice.utilities.estimators.BavariaWalkUtilityEstimator;
 import org.eqasim.bavaria.mode_choice.utilities.predictors.BavariaCarPassengerPredictor;
 import org.eqasim.bavaria.mode_choice.utilities.predictors.BavariaPersonPredictor;
 import org.eqasim.bavaria.mode_choice.utilities.predictors.BavariaPtPredictor;
+import org.eqasim.core.components.config.EqasimConfigGroup;
+import org.eqasim.core.simulation.mode_choice.AbstractEqasimExtension;
+import org.eqasim.core.simulation.mode_choice.ParameterDefinition;
+import org.eqasim.core.simulation.mode_choice.parameters.ModeParameters;
+import org.eqasim.core.simulation.mode_choice.tour_finder.ActivityTourFinderWithExcludedActivities;
 import org.matsim.contribs.discrete_mode_choice.components.tour_finder.ActivityTourFinder;
 import org.matsim.contribs.discrete_mode_choice.modules.config.ActivityTourFinderConfigGroup;
 import org.matsim.contribs.discrete_mode_choice.modules.config.DiscreteModeChoiceConfigGroup;
@@ -42,6 +42,7 @@ public class BavariaModeChoiceModule extends AbstractEqasimExtension {
 	public static final String CAR_PASSENGER_ESTIMATOR_NAME = "BavariaCarPassengerUtilityEstimator";
 	public static final String BICYCLE_ESTIMATOR_NAME = "BavariaBicycleUtilityEstimator";
 	public static final String PT_ESTIMATOR_NAME = "BavariaPtUtilityEstimator";
+	public static final String WALK_ESTIMATOR_NAME = "BavariaWalkUtilityEstimator";
 
 	static public final String CAR_PASSENGER = "car_passenger";
 	static public final String BICYCLE = "bicycle";
@@ -67,6 +68,7 @@ public class BavariaModeChoiceModule extends AbstractEqasimExtension {
 		bindUtilityEstimator(BICYCLE_ESTIMATOR_NAME).to(BavariaBicycleUtilityEstimator.class);
 		bindUtilityEstimator(CAR_PASSENGER_ESTIMATOR_NAME).to(BavariaCarPassengerUtilityEstimator.class);
 		bindUtilityEstimator(PT_ESTIMATOR_NAME).to(BavariaPtUtilityEstimator.class);
+		bindUtilityEstimator(WALK_ESTIMATOR_NAME).to(BavariaWalkUtilityEstimator.class);
 
 		bind(ModeParameters.class).to(BavariaModeParameters.class);
 

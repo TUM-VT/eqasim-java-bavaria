@@ -38,6 +38,7 @@ public class BavariaModeParameters extends ModeParameters {
 		public double waitingTimeHighIncome;
 		public double waitingTimeMunichResident;
 		public double waitingTimeSubscription;
+		public double waitingTimeShopping;
 		public double isWorkTrip;
 		public double isShoppingTrip;
 	}
@@ -59,61 +60,63 @@ public class BavariaModeParameters extends ModeParameters {
 		BavariaModeParameters parameters = new BavariaModeParameters();
 
 		// Access
-		parameters.betaAccessTime_u_min = -0.031239;
+		// not specifically estimated for Bavaria, using values from walk.betaTravelTime_u_min
+		parameters.betaAccessTime_u_min = -0.0450421005231951; // -0.031239;
 
 		// Cost
-		parameters.betaCost_u_MU = -0.310998;
+		parameters.betaCost_u_MU = -0.0448921788117033; // -0.310998;
 		parameters.lambdaCostEuclideanDistance = 0.0; //-0.257501;
 		parameters.referenceEuclideanDistance_km = 4.4;
 
 		
 
 		// Walk
-		parameters.walk.alpha_u = 1.8; // 1.685152;
-		parameters.walk.betaTravelTime_u_min = -0.162285;
-		parameters.bavariaWalk.isHighIncome = -0.0217;
-		parameters.bavariaWalk.hasDrivingPermit = -0.0319;
-		parameters.bavariaWalk.hasPtSubscription = 0.0175;
-		parameters.bavariaWalk.isMunichResident = 0.0106;
+		parameters.walk.alpha_u = 0.774228551231712; // 1.685152;
+		parameters.walk.betaTravelTime_u_min = -0.0695442805909274; // -0.162285;
+		parameters.bavariaWalk.isHighIncome = -0.0217295300225373;
+		parameters.bavariaWalk.hasDrivingPermit = -0.0318551303397705;
+		parameters.bavariaWalk.hasPtSubscription = 0.0174505657228756;
+		parameters.bavariaWalk.isMunichResident = 0.0105573744916928;
 
 
 		// Bicycle
-		parameters.bike.alpha_u = -0.5; // -2.927596;
-		parameters.bike.betaTravelTime_u_min = -0.093485;
-		parameters.bavariaBicycle.isHighIncome = -0.0255;
+		parameters.bike.alpha_u = 0.318089528187347; // -2.927596;
+		parameters.bike.betaTravelTime_u_min = -0.085880877435606; // -0.093485;
+		parameters.bavariaBicycle.isHighIncome = -0.0255287460190827;
 
 		
 		// Car
-		parameters.car.alpha_u = 0.4; // -0.201465;
-		parameters.car.betaTravelTime_u_min = -0.042431;
-		parameters.bavariaCar.isHighIncome = -0.0225;
-		parameters.bavariaCar.hasPtSubscription = -0.0540;
-		parameters.bavariaCar.isWorkTrip = 0.0682;
-		parameters.bavariaCar.isShoppingTrip = 0.0682;
+		parameters.car.alpha_u = 0.0; // -0.201465;
+		parameters.car.betaTravelTime_u_min = -0.0756368247750132; // -0.042431;
+		parameters.bavariaCar.isHighIncome = -0.0224982297973797;
+		parameters.bavariaCar.hasPtSubscription = -0.0539508519243061;
+		parameters.bavariaCar.isWorkTrip = 0.043746300263639;
+		parameters.bavariaCar.isShoppingTrip = 0.0681864158380864;
 
 		// Car passenger
-		parameters.bavariaCarPassenger.alpha_u = -1.4; // -1.713201;
-		parameters.bavariaCarPassenger.betaDrivingPermit_u = -0.835542;
-		parameters.bavariaCarPassenger.betaInVehicleTravelTime_u_min = -0.069976;
-		parameters.bavariaCarPassenger.isHighIncome = -0.0398;
-		parameters.bavariaCarPassenger.isWorkTrip = 0.0210;
-		parameters.bavariaCarPassenger.isShoppingTrip = 0.0508;
+		parameters.bavariaCarPassenger.alpha_u = -2.22497369171908; // -1.713201;
+		parameters.bavariaCarPassenger.betaDrivingPermit_u = 0.0; // -0.835542;
+		parameters.bavariaCarPassenger.betaInVehicleTravelTime_u_min = -0.065198856305705; // -0.069976;
+		parameters.bavariaCarPassenger.isHighIncome = -0.0398473945616337;
+		parameters.bavariaCarPassenger.isWorkTrip = 0.0209967096068355;
+		parameters.bavariaCarPassenger.isShoppingTrip = 0.0508046089649204;
 
 		
 		// PT
-		parameters.pt.alpha_u = 0.0;
-		parameters.pt.betaLineSwitch_u = -0.417658;
-		parameters.pt.betaInVehicleTime_u_min = -0.025501;
-		parameters.pt.betaWaitingTime_u_min = -0.021801;
+		parameters.pt.alpha_u = -0.284650026405347; // 0.0;
+		parameters.pt.betaLineSwitch_u = -0.625046612374831; // -0.417658;
+		parameters.pt.betaInVehicleTime_u_min = -0.0450421005231951; // -0.025501;
+		parameters.pt.betaWaitingTime_u_min = -0.41123926919253; // -0.021801;
 
-		parameters.bavariaPt.betaDrivingPermit_u = -0.531426;
-		parameters.bavariaPt.onlyBus_u = -1.416309;
-		parameters.bavariaPt.isHighIncome = -0.0174;
-		parameters.bavariaPt.isWorkTrip = 0.0426;
-		parameters.bavariaPt.isShoppingTrip = 0.0441;
-		parameters.bavariaPt.waitingTimeHighIncome = -0.1530;
-		parameters.bavariaPt.waitingTimeMunichResident = 0.0991;
-		parameters.bavariaPt.waitingTimeSubscription = 0.4132;
+		parameters.bavariaPt.betaDrivingPermit_u = 0.0; // -0.531426;
+		parameters.bavariaPt.onlyBus_u = 0.0; // -1.416309;
+		parameters.bavariaPt.isHighIncome = -0.0173904643343145;
+		parameters.bavariaPt.isWorkTrip = 0.0425817408468503;
+		parameters.bavariaPt.isShoppingTrip = 0.0441399147197244;
+		parameters.bavariaPt.waitingTimeShopping = -0.105687502807207;
+		parameters.bavariaPt.waitingTimeHighIncome = -0.152965571520264;
+		parameters.bavariaPt.waitingTimeMunichResident = 0.0990869975359573;
+		parameters.bavariaPt.waitingTimeSubscription = 0.413200821337636;
 
 
 		return parameters;
