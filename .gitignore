@@ -10,3 +10,5 @@ dependency-reduced-pom.xml
 simulation_output
 .vscode
 ._*
+bavaria/data/*
+nohup.out
