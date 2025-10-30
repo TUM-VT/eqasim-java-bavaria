@@ -7,7 +7,7 @@ This repo on the LRZ gitlab uses a pre-configured setup from eqasim's simulation
 
 ## ✅ Prerequisites
 
-1. Make sure you’ve completed all steps for generating the synthetic population. You find examples for the population synthesis output files on the internal drives: [\\10.152.34.30\Austausch\MATSim Populations]](\\10.152.34.30\Austausch\MATSim Populations)
+1. Make sure you’ve completed all steps for generating the synthetic population. You find examples for the population synthesis output files on the internal drives: `\\10.152.34.30\Austausch\MATSim Populations`
 2. Additional configuration details are available here:  
 👉 [https://github.com/eqasim-org/bavaria/blob/development-minga/docs/simulation.md](https://github.com/eqasim-org/bavaria/blob/development-minga/docs/simulation.md)
 
