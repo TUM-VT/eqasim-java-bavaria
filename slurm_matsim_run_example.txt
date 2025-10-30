@@ -1,0 +1,25 @@
+#!/bin/bash
+#SBATCH -J calibrated                               # Job name (max 10 characters!)
+#SBATCH -D /dss/dsshome1/0B/go68qak2/minga-eqasim-simulation
+#SBATCH --mem=200G                                  # Memory
+#SBATCH --clusters=cm4                              
+#SBATCH --partition=cm4_tiny
+#SBATCH --qos=cm4_tiny                       
+#SBATCH --nodes=1
+#SBATCH --tasks-per-node=4
+#SBATCH --cpus-per-task=10                          # Optional: how many cores
+#SBATCH --time=08:00:00                             # Time limit (hh:mm:ss)
+#SBATCH --mail-user=your.name@tum.de                # REQUIRED: your email address
+#SBATCH --mail-type=BEGIN,END,FAIL                  # Send email when job ends or fails
+#SBATCH --output=/dss/dsshome1/0B/go68qak2/minga-eqasim-simulation/simulation_bavaria_output_%j.log
+#SBATCH --error=/dss/dsshome1/0B/go68qak2/simulation_bavaria_error_%j.log
+#SBATCH --export=NONE                               # Recommended: clean environment
+#SBATCH --get-user-env
+
+# Load modules
+module load slurm_setup
+module load openjdk/21.0.3_9
+
+# Run your job
+# You have to change the paths
+srun java -cp /dss/dsshome1/0B/go68qak2/minga-eqasim-simulation/bavaria/target/bavaria-1.5.0.jar org.eqasim.bavaria.RunSimulation --config-path /dss/dsshome1/0B/go68qak2/minga-eqasim-simulation/bavaria/data/munich/munich_0.01/munich_config_calibrated.xml --use-vdf true --mode-choice-parameter:walk.alpha_u -0.1 --mode-choice-parameter:bike.alpha_u -1.2 --mode-choice-parameter:bavariaCarPassenger.alpha_u -1.75 --mode-choice-parameter:pt.alpha_u -0.36 --mode-choice-parameter:bavariaCarPassenger.betaInVehicleTravelTime_u_min -0.1 --mode-choice-parameter:pt.betaInVehicleTime_u_min -0.03603368
