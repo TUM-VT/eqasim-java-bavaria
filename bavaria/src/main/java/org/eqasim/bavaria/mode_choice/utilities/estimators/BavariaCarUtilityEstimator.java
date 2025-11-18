@@ -11,6 +11,7 @@ import org.eqasim.core.simulation.mode_choice.utilities.variables.CarVariables;
 import org.matsim.api.core.v01.population.Person;
 import org.matsim.api.core.v01.population.PlanElement;
 import org.matsim.contribs.discrete_mode_choice.model.DiscreteModeChoiceTrip;
+import org.matsim.contribs.discrete_mode_choice.model.trip_based.candidates.TripCandidate;
 
 import com.google.inject.Inject;
 
@@ -50,8 +51,9 @@ public class BavariaCarUtilityEstimator extends CarUtilityEstimator {
 
 
 	@Override
-	public double estimateUtility(Person person, DiscreteModeChoiceTrip trip, List<? extends PlanElement> elements) {
-		CarVariables variables = predictor.predictVariables(person, trip, elements);
+	public double estimateUtility(Person person, DiscreteModeChoiceTrip trip, List<? extends PlanElement> elements,
+			List<TripCandidate> previousTrips) {
+		CarVariables variables = predictor.predictVariables(person, trip, elements, previousTrip);
 		BavariaPersonVariables personVariables = personPredictor.predictVariables(person, trip, elements);
 
 		double utility = 0.0;

@@ -5,12 +5,14 @@ import java.io.IOException;
 import java.util.List;
 
 import org.eqasim.bavaria.mode_choice.costs.BavariaCarCostModel;
+import org.eqasim.bavaria.mode_choice.costs.BavariaDrtCostModel;
 import org.eqasim.bavaria.mode_choice.costs.BavariaPtCostModel;
 import org.eqasim.bavaria.mode_choice.parameters.BavariaCostParameters;
 import org.eqasim.bavaria.mode_choice.parameters.BavariaModeParameters;
 import org.eqasim.bavaria.mode_choice.utilities.estimators.BavariaBicycleUtilityEstimator;
 import org.eqasim.bavaria.mode_choice.utilities.estimators.BavariaCarPassengerUtilityEstimator;
 import org.eqasim.bavaria.mode_choice.utilities.estimators.BavariaCarUtilityEstimator;
+import org.eqasim.bavaria.mode_choice.utilities.estimators.BavariaDrtUtilityEstimator;
 import org.eqasim.bavaria.mode_choice.utilities.estimators.BavariaPtUtilityEstimator;
 import org.eqasim.bavaria.mode_choice.utilities.estimators.BavariaWalkUtilityEstimator;
 import org.eqasim.bavaria.mode_choice.utilities.predictors.BavariaCarPassengerPredictor;
@@ -37,12 +39,14 @@ public class BavariaModeChoiceModule extends AbstractEqasimExtension {
 
 	public static final String CAR_COST_MODEL_NAME = "BavariaCarCostModel";
 	public static final String PT_COST_MODEL_NAME = "MunichPtCostModel";
+	public static final String DRT_COST_MODEL_NAME = "BavariaDrtCostModel";
 
 	public static final String CAR_ESTIMATOR_NAME = "BavariaCarUtilityEstimator";
 	public static final String CAR_PASSENGER_ESTIMATOR_NAME = "BavariaCarPassengerUtilityEstimator";
 	public static final String BICYCLE_ESTIMATOR_NAME = "BavariaBicycleUtilityEstimator";
 	public static final String PT_ESTIMATOR_NAME = "BavariaPtUtilityEstimator";
 	public static final String WALK_ESTIMATOR_NAME = "BavariaWalkUtilityEstimator";
+	public static final String DRT_ESTIMATOR_NAME = "BavariaDrtUtilityEstimator";
 
 	static public final String CAR_PASSENGER = "car_passenger";
 	static public final String BICYCLE = "bicycle";
@@ -63,16 +67,24 @@ public class BavariaModeChoiceModule extends AbstractEqasimExtension {
 
 		bindCostModel(CAR_COST_MODEL_NAME).to(BavariaCarCostModel.class);
 		bindCostModel(PT_COST_MODEL_NAME).to(BavariaPtCostModel.class);
+		bindCostModel(DRT_COST_MODEL_NAME).to(BavariaDrtCostModel.class);
 
 		bindUtilityEstimator(CAR_ESTIMATOR_NAME).to(BavariaCarUtilityEstimator.class);
 		bindUtilityEstimator(BICYCLE_ESTIMATOR_NAME).to(BavariaBicycleUtilityEstimator.class);
 		bindUtilityEstimator(CAR_PASSENGER_ESTIMATOR_NAME).to(BavariaCarPassengerUtilityEstimator.class);
 		bindUtilityEstimator(PT_ESTIMATOR_NAME).to(BavariaPtUtilityEstimator.class);
 		bindUtilityEstimator(WALK_ESTIMATOR_NAME).to(BavariaWalkUtilityEstimator.class);
+		bindUtilityEstimator(DRT_ESTIMATOR_NAME).to(BavariaDrtUtilityEstimator.class);
 
 		bind(ModeParameters.class).to(BavariaModeParameters.class);
 
 		bindTourFinder(ISOLATED_OUTSIDE_TOUR_FINDER_NAME).to(ActivityTourFinderWithExcludedActivities.class);
+	}
+
+	@Provides
+	@Singleton
+	public BavariaModeAvailability provideModeAvailability(EqasimConfigGroup config) {
+		return new BavariaModeAvailability(config.getAdditionalAvailableModes());
 	}
 
 	@Provides
