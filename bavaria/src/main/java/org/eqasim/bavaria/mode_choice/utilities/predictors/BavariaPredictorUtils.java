@@ -18,6 +18,16 @@ public class BavariaPredictorUtils {
 		return !"no".equals(PersonUtils.getLicense(person));
 	}
 
+	static public boolean isHighIncome(Person person) {
+		Boolean highIncome = (Boolean) person.getAttributes().getAttribute("highIncome");
+		return highIncome != null && highIncome;
+	}
+
+	static public boolean isMunichResident(Person person) {
+		Boolean isMunichResident = (Boolean) person.getAttributes().getAttribute("isMunichResident");
+		return isMunichResident != null && isMunichResident;
+	}
+
 	static public boolean hasCarAvailability(Person person) {
 		return !"none".equals((String) person.getAttributes().getAttribute("carAvailability"));
 	}

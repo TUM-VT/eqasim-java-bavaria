@@ -28,11 +28,11 @@ public class BavariaCarPassengerUtilityEstimator implements UtilityEstimator {
 	}
 
 	protected double estimateConstantUtility() {
-		return parameters.carPassenger.alpha_u;
+		return parameters.bavariaCarPassenger.alpha_u;
 	}
 
 	protected double estimateTravelTimeUtility(BavariaCarPassengerVariables variables) {
-		return parameters.carPassenger.betaInVehicleTravelTime_u_min * variables.travelTime_min;
+		return parameters.bavariaCarPassenger.betaInVehicleTravelTime_u_min * variables.travelTime_min;
 	}
 
 	protected double estimateAccessEgressTimeUtility(BavariaCarPassengerVariables variables) {
@@ -40,7 +40,19 @@ public class BavariaCarPassengerUtilityEstimator implements UtilityEstimator {
 	}
 
 	protected double estimateDrivingPermit(BavariaPersonVariables variables) {
-		return variables.hasDrivingPermit ? parameters.carPassenger.betaDrivingPermit_u : 0.0;
+		return variables.hasDrivingPermit ? parameters.bavariaCarPassenger.betaDrivingPermit_u : 0.0;
+	}
+
+	protected double estimaleHighIncomeUtility(BavariaPersonVariables variables) {
+		return variables.isHighIncome ? parameters.bavariaCarPassenger.isHighIncome : 0.0;
+	}
+
+	protected double estimateWorkPurposeUtility(DiscreteModeChoiceTrip trip) {
+		return trip.getDestinationActivity().getType().equals("work") ? parameters.bavariaCarPassenger.isWorkTrip : 0.0;
+	}
+
+	protected double estimateShoppingPurposeUtility(DiscreteModeChoiceTrip trip) {
+		return trip.getDestinationActivity().getType().equals("shop") ? parameters.bavariaCarPassenger.isShoppingTrip : 0.0;
 	}
 
 	@Override
@@ -54,6 +66,9 @@ public class BavariaCarPassengerUtilityEstimator implements UtilityEstimator {
 		utility += estimateTravelTimeUtility(variables);
 		utility += estimateAccessEgressTimeUtility(variables);
 		utility += estimateDrivingPermit(personVariables);
+		utility += estimaleHighIncomeUtility(personVariables);
+		utility += estimateWorkPurposeUtility(trip);
+		utility += estimateShoppingPurposeUtility(trip);
 
 		return utility;
 	}
