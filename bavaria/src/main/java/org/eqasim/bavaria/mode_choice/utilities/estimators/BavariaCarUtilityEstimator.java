@@ -53,7 +53,7 @@ public class BavariaCarUtilityEstimator extends CarUtilityEstimator {
 	@Override
 	public double estimateUtility(Person person, DiscreteModeChoiceTrip trip, List<? extends PlanElement> elements,
 			List<TripCandidate> previousTrips) {
-		CarVariables variables = predictor.predictVariables(person, trip, elements, previousTrip);
+		CarVariables variables = predictor.predictVariables(person, trip, elements, previousTrips);
 		BavariaPersonVariables personVariables = personPredictor.predictVariables(person, trip, elements);
 
 		double utility = 0.0;

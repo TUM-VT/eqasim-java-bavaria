@@ -43,6 +43,16 @@ public class BavariaModeParameters extends ModeParameters {
 		public double isShoppingTrip;
 	}
 
+	public class BavariaDrtParameters {
+		public double isHighIncome;
+		public double isWorkTrip;
+		public double alpha_u;
+		public double betaInVehicleTravelTime_u_min;
+		public double betaWaitingTime_u_min;
+		public double waitingTimeDrtPtPass;
+
+	}
+
 	public final BavariaWalkParameters bavariaWalk = new BavariaWalkParameters();
 
 	public final BavariaBicycleParameters bavariaBicycle = new BavariaBicycleParameters();
@@ -52,6 +62,8 @@ public class BavariaModeParameters extends ModeParameters {
 	public final BavariaCarPassengerParameters bavariaCarPassenger = new BavariaCarPassengerParameters();
 
 	public final BavariaPtParameters bavariaPt = new BavariaPtParameters();
+
+	public final BavariaDrtParameters bavariaDrt = new BavariaDrtParameters();
 
 	
 	public double betaAccessTime_u_min;
@@ -117,6 +129,14 @@ public class BavariaModeParameters extends ModeParameters {
 		parameters.bavariaPt.waitingTimeHighIncome = -0.152965571520264;
 		parameters.bavariaPt.waitingTimeMunichResident = 0.0990869975359573;
 		parameters.bavariaPt.waitingTimeSubscription = 0.413200821337636;
+
+		// DRT
+		parameters.bavariaDrt.alpha_u = -0.63217; 
+		parameters.bavariaDrt.betaInVehicleTravelTime_u_min = -0.03965; 
+		parameters.bavariaDrt.betaWaitingTime_u_min = -0.30511;
+		parameters.bavariaDrt.waitingTimeDrtPtPass = 0.23223;
+		parameters.bavariaDrt.isHighIncome = -0.04109;
+		parameters.bavariaDrt.isWorkTrip = 0.01871;
 
 
 		return parameters;
