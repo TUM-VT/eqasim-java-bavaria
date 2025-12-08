@@ -3,6 +3,7 @@ package org.eqasim.bavaria.mode_choice;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.eqasim.bavaria.mode_choice.costs.BavariaCarCostModel;
 import org.eqasim.bavaria.mode_choice.costs.BavariaDrtCostModel;
@@ -21,6 +22,7 @@ import org.eqasim.bavaria.mode_choice.utilities.predictors.BavariaPtPredictor;
 import org.eqasim.core.components.config.EqasimConfigGroup;
 import org.eqasim.core.simulation.mode_choice.AbstractEqasimExtension;
 import org.eqasim.core.simulation.mode_choice.ParameterDefinition;
+import org.eqasim.core.simulation.mode_choice.cost.CostModel;
 import org.eqasim.core.simulation.mode_choice.parameters.ModeParameters;
 import org.eqasim.core.simulation.mode_choice.tour_finder.ActivityTourFinderWithExcludedActivities;
 import org.matsim.contribs.discrete_mode_choice.components.tour_finder.ActivityTourFinder;
@@ -29,8 +31,10 @@ import org.matsim.contribs.discrete_mode_choice.modules.config.DiscreteModeChoic
 import org.matsim.core.config.CommandLine;
 import org.matsim.core.config.CommandLine.ConfigurationException;
 
+import com.google.inject.Provider;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.name.Named;
 
 public class BavariaModeChoiceModule extends AbstractEqasimExtension {
 	private final CommandLine commandLine;
@@ -79,6 +83,12 @@ public class BavariaModeChoiceModule extends AbstractEqasimExtension {
 		bind(ModeParameters.class).to(BavariaModeParameters.class);
 
 		bindTourFinder(ISOLATED_OUTSIDE_TOUR_FINDER_NAME).to(ActivityTourFinderWithExcludedActivities.class);
+	}
+
+	@Provides
+	@Named("drt")
+	public CostModel provideDrtCostModel(Map<String, Provider<CostModel>> factory, EqasimConfigGroup config) {
+		return getCostModel(factory, config, "drt");
 	}
 
 	@Provides
