@@ -52,9 +52,9 @@ public class BavariaDrtUtilityEstimator implements UtilityEstimator {
 		return trip.getDestinationActivity().getType().equals("work") ? parameters.bavariaDrt.isWorkTrip : 0.0;
 	}
 
-    protected double estimateMonetaryCostUtility(DrtVariables variables) {
+    protected double estimateMonetaryCostUtility(DrtVariables variables, double cost_MU) {
         return this.parameters.betaCost_u_MU * EstimatorUtils.interaction(variables.euclideanDistance_km,
-                this.parameters.referenceEuclideanDistance_km, this.parameters.lambdaCostEuclideanDistance) * variables.cost_MU;
+                this.parameters.referenceEuclideanDistance_km, this.parameters.lambdaCostEuclideanDistance) * cost_MU;
     }
 
     // protected double estimateAccessEgressTimeUtility(DrtVariables variables) {
@@ -68,13 +68,14 @@ public class BavariaDrtUtilityEstimator implements UtilityEstimator {
 		// BavariaPersonVariables personVariables = personPredictor.predictVariables(person, trip, elements);
 
         double utility = 0.0;
+        double cost_MU = costModel.calculateCost_MU(person, trip, elements);
 
         utility += estimateConstantUtility();
         utility += estimateTravelTimeUtility(variables);
         utility += estimateWaitingTimeUtility(variables);
 		utility += estimateHighIncomeUtility(personPredictor.predictVariables(person, trip, elements));
 		utility += estimateWorkPurposeUtility(trip);
-        utility += estimateMonetaryCostUtility(variables);
+        utility += estimateMonetaryCostUtility(variables, cost_MU);
         // utility += estimateAccessEgressTimeUtility(variables);
         return utility;
     }
