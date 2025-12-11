@@ -14,12 +14,11 @@ import com.google.inject.Inject;
 
 public class BavariaDrtCostModel implements CostModel {
 
-    private final String mode;
+    private final String mode = "drt";
     private final BavariaPersonPredictor personPredictor;
 
     @Inject
-	protected BavariaDrtCostModel(String mode, BavariaPersonPredictor personPredictor) {
-		this.mode = mode;
+	protected BavariaDrtCostModel(BavariaPersonPredictor personPredictor) {
         this.personPredictor = personPredictor;
 	}
 
