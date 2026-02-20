@@ -32,6 +32,9 @@ public class BavariaDrtCostModel implements CostModel {
         double pricePerKm_h = 0.70; // 0.45 (autonom)
 
         double distance_km = getInVehicleDistance_km(elements);
+        if (distance_km <= 1.0) {
+            basePrice_h += 1000.0;
+        }
 
         double cost_EUR = basePrice_h + pricePerKm_h * distance_km;
 		if (personVariables.hasSubscription) {
