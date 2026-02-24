@@ -14,3 +14,12 @@ bavaria/data/*
 nohup.out
 populations/*
 bavaria/src/main/python/analysis_minga/analysis_data/*
+
+!populations/muenchen_2024_10pct/synthetic_population_output/munich_config_with_drt.xml
+!populations/muenchen_2024_10pct/synthetic_population_output/munich_config.xml
+!populations/muenchen_2024_10pct/synthetic_population_output/munich_config_with_drt_sbatch.xml
+populations/
+
+output_test.log
+
+._*

@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#SBATCH -J simulation_bavaria_job
+#SBATCH -J simulation_eqasim_10pct
 
 # Output and error files
-#SBATCH --output=simulation_bavaria_output_%j.log
-#SBATCH --error=simulation_bavaria_error_%j.log
+#SBATCH --output=simulation_eqasim_10pct_output_%j.log
+#SBATCH --error=simulation_eqasim_10pct_error_%j.log
 
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
