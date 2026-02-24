@@ -2,7 +2,7 @@
 #
 # Run EQASim only with Slurm job.
 #
-#SBATCH -J muc_10pct_2040
+#SBATCH -J muc_2040_10pct
 #SBATCH --output=simulation_munich_2040_10pct_output_%j.log
 #SBATCH --error=simulation_munich_2040_10pct_error_%j.log
 #SBATCH --nodes=1
@@ -16,7 +16,6 @@
 #SBATCH --mail-user=elena.natterer@tum.de
 #SBATCH --get-user-env
 #SBATCH --export=none
-#SBATCH --licenses=work:0
 
 set -euo pipefail
 
@@ -33,7 +32,7 @@ export FC_FONT_PATH=$HOME/test_java_font_4u/fonts
 EQASIM_DIR="${SLURM_SUBMIT_DIR}"
 JAVA_LOG="${EQASIM_DIR}/output_munich_2040_10pct.log"
 
-CONFIG_PATH="${EQASIM_DIR}/populations/muenchen_2024_10pct/synthetic_population_output/munich_config_sbatch.xml"
+CONFIG_PATH="${EQASIM_DIR}/populations/muenchen_2040_10pct/munich_config_sbatch.xml"
 OUTPUT_DIR="${EQASIM_DIR}/simulation_output/munich_2040_10pct"
 
 srun --cpus-per-task=48 /bin/bash -lc "
