@@ -12,3 +12,5 @@ simulation_output
 ._*
 bavaria/data/*
 nohup.out
+populations/*
+bavaria/src/main/python/analysis_minga/analysis_data/*
