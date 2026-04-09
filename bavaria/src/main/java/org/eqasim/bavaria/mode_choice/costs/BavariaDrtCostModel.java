@@ -15,7 +15,7 @@ import com.google.inject.Inject;
 public class BavariaDrtCostModel implements CostModel {
 
     private final String mode = "drt";
-    private final BavariaPersonPredictor personPredictor;
+    protected final BavariaPersonPredictor personPredictor;
 
     @Inject
 	protected BavariaDrtCostModel(BavariaPersonPredictor personPredictor) {

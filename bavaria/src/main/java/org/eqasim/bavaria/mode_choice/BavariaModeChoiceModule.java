@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.eqasim.bavaria.mode_choice.constraints.FeederDrtServiceAreaConstraint;
 import org.eqasim.bavaria.mode_choice.costs.BavariaCarCostModel;
+import org.eqasim.bavaria.mode_choice.costs.BavariaFeederDrtCostModel;
 import org.eqasim.bavaria.mode_choice.costs.BavariaDrtCostModel;
 import org.eqasim.bavaria.mode_choice.costs.BavariaPtCostModel;
 import org.eqasim.bavaria.mode_choice.parameters.BavariaCostParameters;
@@ -25,11 +27,15 @@ import org.eqasim.core.simulation.mode_choice.ParameterDefinition;
 import org.eqasim.core.simulation.mode_choice.cost.CostModel;
 import org.eqasim.core.simulation.mode_choice.parameters.ModeParameters;
 import org.eqasim.core.simulation.mode_choice.tour_finder.ActivityTourFinderWithExcludedActivities;
+import org.matsim.contrib.drt.run.DrtConfigGroup;
+import org.matsim.contrib.drt.run.MultiModeDrtConfigGroup;
 import org.matsim.contribs.discrete_mode_choice.components.tour_finder.ActivityTourFinder;
 import org.matsim.contribs.discrete_mode_choice.modules.config.ActivityTourFinderConfigGroup;
 import org.matsim.contribs.discrete_mode_choice.modules.config.DiscreteModeChoiceConfigGroup;
 import org.matsim.core.config.CommandLine;
 import org.matsim.core.config.CommandLine.ConfigurationException;
+import org.matsim.core.config.Config;
+import org.matsim.core.config.ConfigGroup;
 
 import com.google.inject.Provider;
 import com.google.inject.Provides;
@@ -44,6 +50,7 @@ public class BavariaModeChoiceModule extends AbstractEqasimExtension {
 	public static final String CAR_COST_MODEL_NAME = "BavariaCarCostModel";
 	public static final String PT_COST_MODEL_NAME = "MunichPtCostModel";
 	public static final String DRT_COST_MODEL_NAME = "BavariaDrtCostModel";
+	public static final String FEEDER_DRT_COST_MODEL_NAME = "BavariaFeederDrtCostModel";
 
 	public static final String CAR_ESTIMATOR_NAME = "BavariaCarUtilityEstimator";
 	public static final String CAR_PASSENGER_ESTIMATOR_NAME = "BavariaCarPassengerUtilityEstimator";
@@ -72,6 +79,7 @@ public class BavariaModeChoiceModule extends AbstractEqasimExtension {
 		bindCostModel(CAR_COST_MODEL_NAME).to(BavariaCarCostModel.class);
 		bindCostModel(PT_COST_MODEL_NAME).to(BavariaPtCostModel.class);
 		bindCostModel(DRT_COST_MODEL_NAME).to(BavariaDrtCostModel.class);
+		bindCostModel(FEEDER_DRT_COST_MODEL_NAME).to(BavariaFeederDrtCostModel.class);
 
 		bindUtilityEstimator(CAR_ESTIMATOR_NAME).to(BavariaCarUtilityEstimator.class);
 		bindUtilityEstimator(BICYCLE_ESTIMATOR_NAME).to(BavariaBicycleUtilityEstimator.class);
@@ -83,6 +91,20 @@ public class BavariaModeChoiceModule extends AbstractEqasimExtension {
 		bind(ModeParameters.class).to(BavariaModeParameters.class);
 
 		bindTourFinder(ISOLATED_OUTSIDE_TOUR_FINDER_NAME).to(ActivityTourFinderWithExcludedActivities.class);
+
+		bindTripConstraintFactory(FeederDrtServiceAreaConstraint.NAME).to(FeederDrtServiceAreaConstraint.Factory.class);
+	}
+
+	@Provides
+	@Named("drt.serviceAreaShapeFile")
+	public String provideFeederDrtServiceAreaShapeFile(Config config) {
+		MultiModeDrtConfigGroup multiModeDrtConfig = (MultiModeDrtConfigGroup) config.getModules()
+				.get(MultiModeDrtConfigGroup.GROUP_NAME);
+		DrtConfigGroup drtConfigGroup = multiModeDrtConfig.getModalElements().stream()
+				.filter(dcg -> dcg.getMode().equals("drt"))
+				.findFirst()
+				.orElseThrow(() -> new RuntimeException("No DRT config group found for mode 'drt'"));
+		return ConfigGroup.getInputFileURL(config.getContext(), drtConfigGroup.getDrtServiceAreaShapeFile()).getPath();
 	}
 
 	@Provides
