@@ -22,21 +22,29 @@ public class BavariaDrtCostModel implements CostModel {
         this.personPredictor = personPredictor;
 	}
 
+    protected double getBasePrice() {
+        return 3.70; // 2.00 (autonom)
+    }
+
+    protected double getPricePerKm() {
+        return 0.70; // 0.45 (autonom)
+    }
+
     @Override
     public double calculateCost_MU(Person person, DiscreteModeChoiceTrip trip, List<? extends PlanElement> elements) {
         // values from mija study by city of munich (moia + TUM)
 
         BavariaPersonVariables personVariables = personPredictor.predictVariables(person, trip, elements);
 
-        double basePrice_h = 3.70; // 2.00 (autonom)
-        double pricePerKm_h = 0.70; // 0.45 (autonom)
+        double basePrice = getBasePrice();
+        double pricePerKm = getPricePerKm();
 
         double distance_km = getInVehicleDistance_km(elements);
         if (distance_km <= 1.0) {
-            basePrice_h += 1000.0;
+            basePrice += 1000.0;
         }
 
-        double cost_EUR = basePrice_h + pricePerKm_h * distance_km;
+        double cost_EUR = basePrice + pricePerKm * distance_km;
 		if (personVariables.hasSubscription) {
 			cost_EUR -= 2.0;    // flat discount for subscription holders
 		}

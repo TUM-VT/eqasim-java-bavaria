@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eqasim.bavaria.mode_choice.constraints.FeederDrtServiceAreaConstraint;
+import org.eqasim.bavaria.mode_choice.costs.BavariaAutonomDrtCostModel;
 import org.eqasim.bavaria.mode_choice.costs.BavariaCarCostModel;
 import org.eqasim.bavaria.mode_choice.costs.BavariaFeederDrtCostModel;
 import org.eqasim.bavaria.mode_choice.costs.BavariaDrtCostModel;
@@ -51,6 +52,7 @@ public class BavariaModeChoiceModule extends AbstractEqasimExtension {
 	public static final String PT_COST_MODEL_NAME = "MunichPtCostModel";
 	public static final String DRT_COST_MODEL_NAME = "BavariaDrtCostModel";
 	public static final String FEEDER_DRT_COST_MODEL_NAME = "BavariaFeederDrtCostModel";
+	public static final String AUTONOM_DRT_COST_MODEL_NAME = "BavariaAutonomDrtCostModel";
 
 	public static final String CAR_ESTIMATOR_NAME = "BavariaCarUtilityEstimator";
 	public static final String CAR_PASSENGER_ESTIMATOR_NAME = "BavariaCarPassengerUtilityEstimator";
@@ -80,6 +82,7 @@ public class BavariaModeChoiceModule extends AbstractEqasimExtension {
 		bindCostModel(PT_COST_MODEL_NAME).to(BavariaPtCostModel.class);
 		bindCostModel(DRT_COST_MODEL_NAME).to(BavariaDrtCostModel.class);
 		bindCostModel(FEEDER_DRT_COST_MODEL_NAME).to(BavariaFeederDrtCostModel.class);
+		bindCostModel(AUTONOM_DRT_COST_MODEL_NAME).to(BavariaAutonomDrtCostModel.class);
 
 		bindUtilityEstimator(CAR_ESTIMATOR_NAME).to(BavariaCarUtilityEstimator.class);
 		bindUtilityEstimator(BICYCLE_ESTIMATOR_NAME).to(BavariaBicycleUtilityEstimator.class);
