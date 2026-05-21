@@ -40,9 +40,6 @@ public class BavariaDrtCostModel implements CostModel {
         double pricePerKm = getPricePerKm();
 
         double distance_km = getInVehicleDistance_km(elements);
-        if (distance_km <= 1.0) {
-            basePrice += 1000.0;
-        }
 
         double cost_EUR = basePrice + pricePerKm * distance_km;
 		if (personVariables.hasSubscription) {
@@ -52,6 +49,10 @@ public class BavariaDrtCostModel implements CostModel {
         double taxi_price = 5.5 + 2.5 * distance_km;    // simple taxi price model as maximum cap
         if (cost_EUR > taxi_price) {
             cost_EUR = taxi_price;
+        }
+
+        if (distance_km <= 1.0) {
+            cost_EUR += 1000.0;  // short-trip penalty applied after cap so it cannot be negated
         }
 
         return cost_EUR;
