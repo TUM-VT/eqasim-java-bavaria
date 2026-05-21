@@ -57,15 +57,13 @@ public class BavariaDrtUtilityEstimator implements UtilityEstimator {
                 this.parameters.referenceEuclideanDistance_km, this.parameters.lambdaCostEuclideanDistance) * cost_MU;
     }
 
-    // protected double estimateAccessEgressTimeUtility(DrtVariables variables) {
-    //     return super.estimateAccessEgressTimeUtility(variables);
-    // }
-
+    protected double estimateAccessEgressTimeUtility(DrtVariables variables) {
+        return this.parameters.walk.betaTravelTime_u_min * variables.accessEgressTime_min;
+    }
 
     @Override
     public double estimateUtility(Person person, DiscreteModeChoiceTrip trip, List<? extends PlanElement> elements) {
         DrtVariables variables = this.drtPredictor.predictVariables(person, trip, elements);
-		// BavariaPersonVariables personVariables = personPredictor.predictVariables(person, trip, elements);
 
         double utility = 0.0;
         double cost_MU = costModel.calculateCost_MU(person, trip, elements);
@@ -73,10 +71,10 @@ public class BavariaDrtUtilityEstimator implements UtilityEstimator {
         utility += estimateConstantUtility();
         utility += estimateTravelTimeUtility(variables);
         utility += estimateWaitingTimeUtility(variables);
-		utility += estimateHighIncomeUtility(personPredictor.predictVariables(person, trip, elements));
-		utility += estimateWorkPurposeUtility(trip);
+        utility += estimateAccessEgressTimeUtility(variables);
+        utility += estimateHighIncomeUtility(personPredictor.predictVariables(person, trip, elements));
+        utility += estimateWorkPurposeUtility(trip);
         utility += estimateMonetaryCostUtility(variables, cost_MU);
-        // utility += estimateAccessEgressTimeUtility(variables);
         return utility;
     }
 }

@@ -3,6 +3,7 @@
 .settings
 .vscode
 .history
+.claude
 target
 dependency-reduced-pom.xml
 *.iml
