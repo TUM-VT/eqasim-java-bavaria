@@ -1,5 +1,9 @@
 package org.eqasim.bavaria;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Set;
 
@@ -79,18 +83,38 @@ public class RunSimulationWithFleetPy {
 		controller.addOverridingModule(new FleetPyModule("drt", remotePort));
 		controller.addOverridingQSimModule(new FleetPyQSimModule("drt"));
 
-		// Temporary diagnostics: compare drt vs. feeder_drt candidate volume per iteration
+		// Temporary diagnostics: compare drt vs. feeder_drt candidate volume per iteration.
+		// Written directly to a plain file (not via log4j) so it doesn't depend on logging configuration.
+		// Header is written lazily on the first iteration-end call, since the Controler wipes the
+		// output directory on startup (overwriteFiles=deleteDirectoryIfExists) - writing it any
+		// earlier would risk it being deleted again before the run actually starts.
 		controller.addOverridingModule(new AbstractModule() {
 			@Override
 			public void install() {
 				addControlerListenerBinding().toInstance(new IterationEndsListener() {
+					private boolean headerWritten = false;
+
 					@Override
 					public void notifyIterationEnds(IterationEndsEvent event) {
+						Path diagnosticsPath = Path.of(config.controller().getOutputDirectory(),
+								"candidate_diagnostics.csv");
+
 						int[] counts = CandidateCounter.snapshotAndReset();
 						int plainDrtCandidates = counts[0] - counts[2];
-						log.info(String.format(
-								"[Diagnostics] Iteration %d: drt candidates = %d, feeder_drt candidates = %d (feeder-internal drt segments = %d)",
-								event.getIteration(), plainDrtCandidates, counts[1], counts[2]));
+
+						String line = String.format("%d;%d;%d;%d", event.getIteration(), plainDrtCandidates,
+								counts[1], counts[2]);
+						log.info("[Diagnostics] " + line);
+
+						try (PrintWriter writer = new PrintWriter(new FileWriter(diagnosticsPath.toFile(), true))) {
+							if (!headerWritten) {
+								writer.println("iteration;drt_candidates;feeder_drt_candidates;feeder_internal_drt_segments");
+								headerWritten = true;
+							}
+							writer.println(line);
+						} catch (IOException e) {
+							log.error("Could not write candidate diagnostics", e);
+						}
 					}
 				});
 			}
