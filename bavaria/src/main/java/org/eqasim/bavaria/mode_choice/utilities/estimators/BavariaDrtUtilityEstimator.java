@@ -66,6 +66,8 @@ public class BavariaDrtUtilityEstimator implements UtilityEstimator {
     public double estimateUtility(Person person, DiscreteModeChoiceTrip trip, List<? extends PlanElement> elements) {
         CandidateCounter.DRT_ESTIMATOR_CALLS.incrementAndGet();
         DrtVariables variables = this.drtPredictor.predictVariables(person, trip, elements);
+        CandidateCounter.DRT_TOTAL_TRAVEL_TIME_MIN.add(variables.travelTime_min);
+        CandidateCounter.DRT_TOTAL_DISTANCE_KM.add(variables.euclideanDistance_km);
 
         double utility = 0.0;
         double cost_MU = costModel.calculateCost_MU(person, trip, elements);

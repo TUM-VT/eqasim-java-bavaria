@@ -1,6 +1,7 @@
 package org.eqasim.core.simulation.modes.feeder_drt.router;
 
 import org.eqasim.core.scenario.cutter.extent.ScenarioExtent;
+import org.eqasim.core.simulation.mode_choice.utilities.CandidateCounter;
 import org.eqasim.core.simulation.modes.feeder_drt.router.access_egress_stop_search.AccessEgressStopSearch;
 import org.eqasim.core.simulation.modes.feeder_drt.router.access_egress_stop_selection.AccessEgressStopSelector;
 import org.matsim.api.core.v01.population.*;
@@ -50,6 +51,15 @@ public class FeederDrtRoutingModule implements RoutingModule {
 
     @Override
     public List<? extends PlanElement> calcRoute(RoutingRequest routingRequest) {
+        long start = System.nanoTime();
+        try {
+            return calcRouteInternal(routingRequest);
+        } finally {
+            CandidateCounter.FEEDER_DRT_ROUTING_NANOS.addAndGet(System.nanoTime() - start);
+        }
+    }
+
+    private List<? extends PlanElement> calcRouteInternal(RoutingRequest routingRequest) {
         Facility fromFacility = routingRequest.getFromFacility();
         Facility toFacility = routingRequest.getToFacility();
         double departureTime = routingRequest.getDepartureTime();

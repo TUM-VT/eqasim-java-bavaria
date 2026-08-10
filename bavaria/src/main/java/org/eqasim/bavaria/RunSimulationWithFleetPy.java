@@ -99,16 +99,25 @@ public class RunSimulationWithFleetPy {
 						Path diagnosticsPath = Path.of(config.controller().getOutputDirectory(),
 								"candidate_diagnostics.csv");
 
-						int[] counts = CandidateCounter.snapshotAndReset();
-						int plainDrtCandidates = counts[0] - counts[2];
+						CandidateCounter.Snapshot snapshot = CandidateCounter.snapshotAndReset();
+						int plainDrtCandidates = snapshot.drtCalls() - snapshot.feederInternalDrtSegments();
+						// drtCalls covers both top-level drt candidates and feeder-internal drt segments,
+						// so the average below is across all drt-leg evaluations, not just plain drt trips
+						double avgDrtTravelTimeMin = snapshot.drtCalls() == 0 ? 0.0
+								: snapshot.drtTotalTravelTimeMin() / snapshot.drtCalls();
+						double avgDrtDistanceKm = snapshot.drtCalls() == 0 ? 0.0
+								: snapshot.drtTotalDistanceKm() / snapshot.drtCalls();
+						double feederDrtRoutingSeconds = snapshot.feederDrtRoutingNanos() / 1e9;
 
-						String line = String.format("%d;%d;%d;%d", event.getIteration(), plainDrtCandidates,
-								counts[1], counts[2]);
+						String line = String.format("%d;%d;%d;%d;%.3f;%.3f;%.3f", event.getIteration(),
+								plainDrtCandidates, snapshot.feederDrtTrips(), snapshot.feederInternalDrtSegments(),
+								avgDrtTravelTimeMin, avgDrtDistanceKm, feederDrtRoutingSeconds);
 						log.info("[Diagnostics] " + line);
 
 						try (PrintWriter writer = new PrintWriter(new FileWriter(diagnosticsPath.toFile(), true))) {
 							if (!headerWritten) {
-								writer.println("iteration;drt_candidates;feeder_drt_candidates;feeder_internal_drt_segments");
+								writer.println(
+										"iteration;drt_candidates;feeder_drt_candidates;feeder_internal_drt_segments;drt_avg_travel_time_min;drt_avg_distance_km;feeder_drt_routing_seconds");
 								headerWritten = true;
 							}
 							writer.println(line);
