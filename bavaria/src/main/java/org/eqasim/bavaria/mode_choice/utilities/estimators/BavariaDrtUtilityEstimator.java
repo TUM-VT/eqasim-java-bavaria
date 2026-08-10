@@ -6,6 +6,7 @@ import org.eqasim.bavaria.mode_choice.parameters.BavariaModeParameters;
 import org.eqasim.bavaria.mode_choice.utilities.predictors.BavariaPersonPredictor;
 import org.eqasim.bavaria.mode_choice.utilities.variables.BavariaPersonVariables;
 import org.eqasim.core.simulation.mode_choice.cost.CostModel;
+import org.eqasim.core.simulation.mode_choice.utilities.CandidateCounter;
 import org.eqasim.core.simulation.mode_choice.utilities.UtilityEstimator;
 import org.eqasim.core.simulation.mode_choice.utilities.estimators.EstimatorUtils;
 import org.eqasim.core.simulation.modes.drt.mode_choice.predictors.DrtPredictor;
@@ -63,6 +64,7 @@ public class BavariaDrtUtilityEstimator implements UtilityEstimator {
 
     @Override
     public double estimateUtility(Person person, DiscreteModeChoiceTrip trip, List<? extends PlanElement> elements) {
+        CandidateCounter.DRT_ESTIMATOR_CALLS.incrementAndGet();
         DrtVariables variables = this.drtPredictor.predictVariables(person, trip, elements);
 
         double utility = 0.0;

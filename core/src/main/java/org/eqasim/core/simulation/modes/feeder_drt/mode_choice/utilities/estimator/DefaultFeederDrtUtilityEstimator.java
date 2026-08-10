@@ -1,5 +1,6 @@
 package org.eqasim.core.simulation.modes.feeder_drt.mode_choice.utilities.estimator;
 
+import org.eqasim.core.simulation.mode_choice.utilities.CandidateCounter;
 import org.eqasim.core.simulation.mode_choice.utilities.UtilityEstimator;
 import org.eqasim.core.simulation.modes.feeder_drt.router.FeederDrtRoutingModule;
 import org.matsim.api.core.v01.population.Activity;
@@ -23,6 +24,7 @@ public class DefaultFeederDrtUtilityEstimator implements UtilityEstimator {
 	}
 
 	public double estimateUtility(Person person, DiscreteModeChoiceTrip trip, List<? extends PlanElement> elements) {
+		CandidateCounter.FEEDER_DRT_TRIPS.incrementAndGet();
 		// It would probably be cleaner to use TripStructureUtils to cut the elements list to subtrips
 		// But then I would have to loop through the individual trips to see what modes they are to then pass them to appropriate estimators
 		List<PlanElement> currentTrip = new LinkedList<>();
@@ -43,6 +45,7 @@ public class DefaultFeederDrtUtilityEstimator implements UtilityEstimator {
 				if(previousSegmentType.equals(FeederDrtRoutingModule.FeederDrtTripSegmentType.MAIN)) {
 					totalUtility += ptEstimator.estimateUtility(person, trip, currentTrip);
 				} else if (previousSegmentType.equals(FeederDrtRoutingModule.FeederDrtTripSegmentType.DRT)) {
+					CandidateCounter.FEEDER_INTERNAL_DRT_SEGMENTS.incrementAndGet();
 					totalUtility += drtEstimator.estimateUtility(person, trip, currentTrip);
 				} else {
 					throw new IllegalStateException(String.format("Unhandled previous segment type %s in trip of person %s", previousSegmentType, person.getId().toString()));
@@ -68,6 +71,7 @@ public class DefaultFeederDrtUtilityEstimator implements UtilityEstimator {
 			if (previousSegmentType.equals(FeederDrtRoutingModule.FeederDrtTripSegmentType.MAIN)) {
 				totalUtility += ptEstimator.estimateUtility(person, trip, currentTrip);
 			} else {
+				CandidateCounter.FEEDER_INTERNAL_DRT_SEGMENTS.incrementAndGet();
 				totalUtility += drtEstimator.estimateUtility(person, trip, currentTrip);
 			}
 			currentTrip.clear();

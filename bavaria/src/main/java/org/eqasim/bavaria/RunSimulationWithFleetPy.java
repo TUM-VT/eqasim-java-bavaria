@@ -3,7 +3,10 @@ package org.eqasim.bavaria;
 import java.util.Collections;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eqasim.core.scenario.validation.VehiclesValidator;
+import org.eqasim.core.simulation.mode_choice.utilities.CandidateCounter;
 import org.eqasim.core.simulation.vdf.VDFConfigGroup;
 import org.eqasim.bavaria.mode_choice.BavariaModeChoiceModule;
 import org.eqasim.core.components.config.EqasimConfigGroup;
@@ -15,10 +18,15 @@ import org.matsim.core.config.CommandLine;
 import org.matsim.core.config.CommandLine.ConfigurationException;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
+import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
+import org.matsim.core.controler.events.IterationEndsEvent;
+import org.matsim.core.controler.listener.IterationEndsListener;
 import org.matsim.core.scenario.ScenarioUtils;
 
 public class RunSimulationWithFleetPy {
+	private static final Logger log = LogManager.getLogger(RunSimulationWithFleetPy.class);
+
 	static public void main(String[] args) throws ConfigurationException {
 		CommandLine cmd = new CommandLine.Builder(args) //
 				.requireOptions("config-path", "remote-port") //
@@ -70,6 +78,23 @@ public class RunSimulationWithFleetPy {
 		int remotePort = Integer.parseInt(cmd.getOptionStrict("remote-port"));
 		controller.addOverridingModule(new FleetPyModule("drt", remotePort));
 		controller.addOverridingQSimModule(new FleetPyQSimModule("drt"));
+
+		// Temporary diagnostics: compare drt vs. feeder_drt candidate volume per iteration
+		controller.addOverridingModule(new AbstractModule() {
+			@Override
+			public void install() {
+				addControlerListenerBinding().toInstance(new IterationEndsListener() {
+					@Override
+					public void notifyIterationEnds(IterationEndsEvent event) {
+						int[] counts = CandidateCounter.snapshotAndReset();
+						int plainDrtCandidates = counts[0] - counts[2];
+						log.info(String.format(
+								"[Diagnostics] Iteration %d: drt candidates = %d, feeder_drt candidates = %d (feeder-internal drt segments = %d)",
+								event.getIteration(), plainDrtCandidates, counts[1], counts[2]));
+					}
+				});
+			}
+		});
 
 		controller.run();
 	}
