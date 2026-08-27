@@ -23,6 +23,8 @@ public class EqasimConfigGroup extends ReflectiveConfigGroup {
 
 	private final static String MODE_PARAMETERS_PATH = "modeParametersPath";
 	private final static String COST_PARAMETERS_PATH = "costParametersPath";
+	private final static String COST_PARAMETERS_CLASS = "costParametersClass";
+	private final static String MODE_PARAMETERS_CLASS = "modeParametersClass";
 
 	private final static String ANALYSIS_INTERVAL = "analysisInterval";
 	private final static String ANALYSIS_DISTANCE_UNIT = "analysisDistanceUnit";
@@ -42,6 +44,8 @@ public class EqasimConfigGroup extends ReflectiveConfigGroup {
 
 	private String modeParametersPath = null;
 	private String costParametersPath = null;
+	private String costParametersClass = null;
+	private String modeParametersClass = null;
 
 	private int analysisInterval = 0;
 	private DistanceUnit analysisDistanceUnit = DistanceUnit.meter;
@@ -231,6 +235,40 @@ public class EqasimConfigGroup extends ReflectiveConfigGroup {
 	@StringSetter(COST_PARAMETERS_PATH)
 	public void setCostParametersPath(String costParametersPath) {
 		this.costParametersPath = costParametersPath;
+	}
+
+	/**
+	 * Selects which cost-parameters "profile" class a region's mode-choice module
+	 * should build its default {@code BavariaCostParameters} (or region-specific
+	 * equivalent) from, e.g. to bundle a set of scenario-specific defaults (see
+	 * Sc6PushCostParameters) without hardcoding the choice in Java. Null/unset
+	 * means "use the plain baseline class" - existing configs are unaffected.
+	 */
+	@StringGetter(COST_PARAMETERS_CLASS)
+	public String getCostParametersClass() {
+		return costParametersClass;
+	}
+
+	@StringSetter(COST_PARAMETERS_CLASS)
+	public void setCostParametersClass(String costParametersClass) {
+		this.costParametersClass = costParametersClass;
+	}
+
+	/**
+	 * Selects which mode-choice-parameters "profile" class a region's mode-choice
+	 * module should build its default {@code BavariaModeParameters} (or
+	 * region-specific equivalent) from - the mode-choice-side counterpart to
+	 * {@link #getCostParametersClass()}. Null/unset means "use the plain baseline
+	 * class" - existing configs are unaffected.
+	 */
+	@StringGetter(MODE_PARAMETERS_CLASS)
+	public String getModeParametersClass() {
+		return modeParametersClass;
+	}
+
+	@StringSetter(MODE_PARAMETERS_CLASS)
+	public void setModeParametersClass(String modeParametersClass) {
+		this.modeParametersClass = modeParametersClass;
 	}
 
 	@StringGetter(ANALYSIS_INTERVAL)

@@ -20,6 +20,23 @@ public class BavariaModeParameters extends ModeParameters {
 		public double hasPtSubscription;
 		public double isWorkTrip;
 		public double isShoppingTrip;
+
+		// Altstadtring closure measure (BavariaCarRegulatedUtilityEstimator)
+		public double altstadtringPenalty_u;
+
+		// Munich-boundary parking-search-time measure (BavariaCarRegulatedUtilityEstimator)
+		public double munichParkingSearchPenalty_min;
+	}
+
+	/**
+	 * Shapefile reference for a zone-membership check (e.g. Altstadtring, Munich
+	 * city boundary). A blank {@code shapePath} means "not configured" and
+	 * resolves to a {@code NullScenarioExtent} (always outside) at wiring time.
+	 */
+	public class ZoneShapeParameters {
+		public String shapePath = "";
+		public String shapeAttribute = "";
+		public String shapeValue = "";
 	}
 
 	public class BavariaCarPassengerParameters {
@@ -65,11 +82,28 @@ public class BavariaModeParameters extends ModeParameters {
 
 	public final BavariaDrtParameters bavariaDrt = new BavariaDrtParameters();
 
-	
+	// Zones used by BavariaCarRegulatedUtilityEstimator / BavariaCarRegulatedCostModel
+	public final ZoneShapeParameters altstadtringZone = new ZoneShapeParameters();
+	public final ZoneShapeParameters munichBoundaryZone = new ZoneShapeParameters();
+
+
 	public double betaAccessTime_u_min;
 
 	public static BavariaModeParameters buildDefault() {
 		BavariaModeParameters parameters = new BavariaModeParameters();
+		parameters.applyDefaults();
+		return parameters;
+	}
+
+	/**
+	 * Populates this instance with the calibrated Bavaria baseline values.
+	 * Extracted as an instance method (rather than inlined in {@link #buildDefault()})
+	 * so subclasses (e.g. scenario-specific profiles like Sc6PushModeParameters) can
+	 * reuse the full baseline calibration and layer their own overrides on top,
+	 * without duplicating it.
+	 */
+	protected void applyDefaults() {
+		BavariaModeParameters parameters = this;
 
 		// Access
 		// not specifically estimated for Bavaria, using values from walk.betaTravelTime_u_min
@@ -104,6 +138,8 @@ public class BavariaModeParameters extends ModeParameters {
 		parameters.bavariaCar.hasPtSubscription = -0.0539508519243061;
 		parameters.bavariaCar.isWorkTrip = 0.043746300263639;
 		parameters.bavariaCar.isShoppingTrip = 0.0681864158380864;
+		parameters.bavariaCar.altstadtringPenalty_u = 0.0; // off by default, see BavariaCarRegulatedUtilityEstimator / Sc6PushModeParameters
+		parameters.bavariaCar.munichParkingSearchPenalty_min = 0.0; // off by default
 
 		// Car passenger
 		parameters.bavariaCarPassenger.alpha_u = -1.75; // uncalibrated -2.22497369171908; IdF -1.713201;
@@ -137,8 +173,5 @@ public class BavariaModeParameters extends ModeParameters {
 		parameters.bavariaDrt.waitingTimeDrtPtPass = 0.23223;
 		parameters.bavariaDrt.isHighIncome = -0.04109;
 		parameters.bavariaDrt.isWorkTrip = 0.01871;
-
-
-		return parameters;
 	}
 }

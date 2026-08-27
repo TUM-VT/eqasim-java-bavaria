@@ -4,18 +4,23 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.eqasim.bavaria.mode_choice.constraints.FeederDrtServiceAreaConstraint;
 import org.eqasim.bavaria.mode_choice.costs.BavariaAutonomDrtCostModel;
 import org.eqasim.bavaria.mode_choice.costs.BavariaCarCostModel;
+import org.eqasim.bavaria.mode_choice.costs.BavariaCarRegulatedCostModel;
 import org.eqasim.bavaria.mode_choice.costs.BavariaFeederDrtCostModel;
 import org.eqasim.bavaria.mode_choice.costs.BavariaFreeFeederDrtCostModel;
 import org.eqasim.bavaria.mode_choice.costs.BavariaDrtCostModel;
 import org.eqasim.bavaria.mode_choice.costs.BavariaPtCostModel;
 import org.eqasim.bavaria.mode_choice.parameters.BavariaCostParameters;
 import org.eqasim.bavaria.mode_choice.parameters.BavariaModeParameters;
+import org.eqasim.bavaria.mode_choice.parameters.Sc6PushCostParameters;
+import org.eqasim.bavaria.mode_choice.parameters.Sc6PushModeParameters;
 import org.eqasim.bavaria.mode_choice.utilities.estimators.BavariaBicycleUtilityEstimator;
 import org.eqasim.bavaria.mode_choice.utilities.estimators.BavariaCarPassengerUtilityEstimator;
+import org.eqasim.bavaria.mode_choice.utilities.estimators.BavariaCarRegulatedUtilityEstimator;
 import org.eqasim.bavaria.mode_choice.utilities.estimators.BavariaCarUtilityEstimator;
 import org.eqasim.bavaria.mode_choice.utilities.estimators.BavariaDrtUtilityEstimator;
 import org.eqasim.bavaria.mode_choice.utilities.estimators.BavariaPtUtilityEstimator;
@@ -24,6 +29,9 @@ import org.eqasim.bavaria.mode_choice.utilities.predictors.BavariaCarPassengerPr
 import org.eqasim.bavaria.mode_choice.utilities.predictors.BavariaPersonPredictor;
 import org.eqasim.bavaria.mode_choice.utilities.predictors.BavariaPtPredictor;
 import org.eqasim.core.components.config.EqasimConfigGroup;
+import org.eqasim.core.scenario.cutter.extent.NullScenarioExtent;
+import org.eqasim.core.scenario.cutter.extent.ScenarioExtent;
+import org.eqasim.core.scenario.cutter.extent.ShapeScenarioExtent;
 import org.eqasim.core.simulation.mode_choice.AbstractEqasimExtension;
 import org.eqasim.core.simulation.mode_choice.ParameterDefinition;
 import org.eqasim.core.simulation.mode_choice.cost.CostModel;
@@ -57,6 +65,8 @@ public class BavariaModeChoiceModule extends AbstractEqasimExtension {
 	public static final String FREE_FEEDER_DRT_COST_MODEL_NAME = "BavariaFreeFeederDrtCostModel";
 
 	public static final String CAR_ESTIMATOR_NAME = "BavariaCarUtilityEstimator";
+	public static final String CAR_REGULATED_ESTIMATOR_NAME = "BavariaCarRegulatedUtilityEstimator";
+	public static final String CAR_REGULATED_COST_MODEL_NAME = "BavariaCarRegulatedCostModel";
 	public static final String CAR_PASSENGER_ESTIMATOR_NAME = "BavariaCarPassengerUtilityEstimator";
 	public static final String BICYCLE_ESTIMATOR_NAME = "BavariaBicycleUtilityEstimator";
 	public static final String PT_ESTIMATOR_NAME = "BavariaPtUtilityEstimator";
@@ -81,6 +91,7 @@ public class BavariaModeChoiceModule extends AbstractEqasimExtension {
 		bind(BavariaPtPredictor.class);
 
 		bindCostModel(CAR_COST_MODEL_NAME).to(BavariaCarCostModel.class);
+		bindCostModel(CAR_REGULATED_COST_MODEL_NAME).to(BavariaCarRegulatedCostModel.class);
 		bindCostModel(PT_COST_MODEL_NAME).to(BavariaPtCostModel.class);
 		bindCostModel(DRT_COST_MODEL_NAME).to(BavariaDrtCostModel.class);
 		bindCostModel(FEEDER_DRT_COST_MODEL_NAME).to(BavariaFeederDrtCostModel.class);
@@ -88,6 +99,7 @@ public class BavariaModeChoiceModule extends AbstractEqasimExtension {
 		bindCostModel(FREE_FEEDER_DRT_COST_MODEL_NAME).to(BavariaFreeFeederDrtCostModel.class);
 
 		bindUtilityEstimator(CAR_ESTIMATOR_NAME).to(BavariaCarUtilityEstimator.class);
+		bindUtilityEstimator(CAR_REGULATED_ESTIMATOR_NAME).to(BavariaCarRegulatedUtilityEstimator.class);
 		bindUtilityEstimator(BICYCLE_ESTIMATOR_NAME).to(BavariaBicycleUtilityEstimator.class);
 		bindUtilityEstimator(CAR_PASSENGER_ESTIMATOR_NAME).to(BavariaCarPassengerUtilityEstimator.class);
 		bindUtilityEstimator(PT_ESTIMATOR_NAME).to(BavariaPtUtilityEstimator.class);
@@ -99,6 +111,37 @@ public class BavariaModeChoiceModule extends AbstractEqasimExtension {
 		bindTourFinder(ISOLATED_OUTSIDE_TOUR_FINDER_NAME).to(ActivityTourFinderWithExcludedActivities.class);
 
 		bindTripConstraintFactory(FeederDrtServiceAreaConstraint.NAME).to(FeederDrtServiceAreaConstraint.Factory.class);
+	}
+
+	@Provides
+	@Singleton
+	@Named("altstadtringExtent")
+	public ScenarioExtent provideAltstadtringExtent(BavariaModeParameters parameters, Config config) throws IOException {
+		return loadZoneExtent(parameters.altstadtringZone, config);
+	}
+
+	@Provides
+	@Singleton
+	@Named("munichBoundaryExtent")
+	public ScenarioExtent provideMunichBoundaryExtent(BavariaModeParameters parameters, Config config) throws IOException {
+		return loadZoneExtent(parameters.munichBoundaryZone, config);
+	}
+
+	private ScenarioExtent loadZoneExtent(BavariaModeParameters.ZoneShapeParameters zone, Config config) throws IOException {
+		if (zone.shapePath == null || zone.shapePath.isBlank()) {
+			return new NullScenarioExtent();
+		}
+
+		Optional<String> attribute = zone.shapeAttribute == null || zone.shapeAttribute.isBlank() ? Optional.empty()
+				: Optional.of(zone.shapeAttribute);
+		Optional<String> value = zone.shapeValue == null || zone.shapeValue.isBlank() ? Optional.empty()
+				: Optional.of(zone.shapeValue);
+
+		// Resolved relative to the config file's directory, exactly like MATSim's own
+		// file params (inputNetworkFile, drtServiceAreaShapeFile, ...) - so a scenario
+		// only needs the bare filename as long as the shapefile sits next to the config.
+		File shapeFile = new File(ConfigGroup.getInputFileURL(config.getContext(), zone.shapePath).getPath());
+		return new ShapeScenarioExtent.Builder(shapeFile, attribute, value).build();
 	}
 
 	@Provides
@@ -129,7 +172,7 @@ public class BavariaModeChoiceModule extends AbstractEqasimExtension {
 	@Singleton
 	public BavariaModeParameters provideModeChoiceParameters(EqasimConfigGroup config)
 			throws IOException, ConfigurationException {
-		BavariaModeParameters parameters = BavariaModeParameters.buildDefault();
+		BavariaModeParameters parameters = buildModeParametersDefault(config.getModeParametersClass());
 
 		if (config.getModeParametersPath() != null) {
 			ParameterDefinition.applyFile(new File(config.getModeParametersPath()), parameters);
@@ -139,10 +182,27 @@ public class BavariaModeChoiceModule extends AbstractEqasimExtension {
 		return parameters;
 	}
 
+	/**
+	 * Selects which mode-choice-parameters "profile" to build from, based on the
+	 * {@code eqasim.modeParametersClass} config value. Null/unset (the default for
+	 * any existing scenario config) keeps the plain baseline - this only changes
+	 * behavior for configs that explicitly opt into a named profile.
+	 */
+	private BavariaModeParameters buildModeParametersDefault(String modeParametersClass) {
+		if (modeParametersClass == null || modeParametersClass.isBlank()
+				|| modeParametersClass.equals("BavariaModeParameters")) {
+			return BavariaModeParameters.buildDefault();
+		} else if (modeParametersClass.equals("Sc6PushModeParameters")) {
+			return Sc6PushModeParameters.buildDefault();
+		} else {
+			throw new IllegalStateException("Unknown modeParametersClass: " + modeParametersClass);
+		}
+	}
+
 	@Provides
 	@Singleton
 	public BavariaCostParameters provideCostParameters(EqasimConfigGroup config) {
-		BavariaCostParameters parameters = BavariaCostParameters.buildDefault();
+		BavariaCostParameters parameters = buildCostParametersDefault(config.getCostParametersClass());
 
 		if (config.getCostParametersPath() != null) {
 			ParameterDefinition.applyFile(new File(config.getCostParametersPath()), parameters);
@@ -150,6 +210,23 @@ public class BavariaModeChoiceModule extends AbstractEqasimExtension {
 
 		ParameterDefinition.applyCommandLine("cost-parameter", commandLine, parameters);
 		return parameters;
+	}
+
+	/**
+	 * Selects which cost-parameters "profile" to build from, based on the
+	 * {@code eqasim.costParametersClass} config value. Null/unset (the default for
+	 * any existing scenario config) keeps the plain baseline - this only changes
+	 * behavior for configs that explicitly opt into a named profile.
+	 */
+	private BavariaCostParameters buildCostParametersDefault(String costParametersClass) {
+		if (costParametersClass == null || costParametersClass.isBlank()
+				|| costParametersClass.equals("BavariaCostParameters")) {
+			return BavariaCostParameters.buildDefault();
+		} else if (costParametersClass.equals("Sc6PushCostParameters")) {
+			return Sc6PushCostParameters.buildDefault();
+		} else {
+			throw new IllegalStateException("Unknown costParametersClass: " + costParametersClass);
+		}
 	}
 
 	@Provides
