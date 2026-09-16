@@ -1,0 +1,48 @@
+#!/bin/bash
+#SBATCH -J calib
+#SBATCH -o /dss/dsshome1/lxc09/ge37ser2/logs/run_calib_%j.txt
+#SBATCH -D ./
+#SBATCH --get-user-env
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=roman.engelhardt@tum.de
+#SBATCH --export=NONE
+#SBATCH --time=23:59:00 #estimation of the time the job will take
+#SBATCH --clusters=cm4
+#SBATCH --partition=cm4_tiny
+#SBATCH --qos=cm4_tiny
+#SBATCH --nodes=1
+#SBATCH --tasks-per-node=1
+#SBATCH --cpus-per-task=40
+#SBATCH --mem=230G
+
+# --- should stay constant ----
+EQUASIM_DIR=/dss/dsshome1/lxc09/ge37ser2/MINGA_MATSim/eqasim-java-bavaria
+CALIB_DIR=${EQUASIM_DIR}/bavaria/src/main/python/calib
+RUN_SCRIPT_PATH=${CALIB_DIR}/run_calibration.py
+GRID_PATH=${CALIB_DIR}/asc_grid_stage1.json
+
+# --- to be adapted ----
+# How many MATSim runs execute at the same time inside this one job.
+MAX_PARALLEL=8
+MATSIM_CPUS=1
+
+# Heap PER RUN. Rule of thumb: (job --mem / MAX_PARALLEL) minus a few GB headroom.
+JAVA_XMS=20g
+JAVA_XMX=30g
+
+# NOTE: this must be a BASE-CASE config (no DRT / no FleetPy coupling). The ASC
+# calibration targets the status-quo modal split, and run_calibration.py drives
+# org.eqasim.bavaria.RunSimulation directly - it does not start FleetPy.
+MATSIM_POP_PATH=/dss/dsshome1/lxc09/ge37ser2/MINGA_MATSim/FleetPy/studies/minga_simulations/matsim_data/munich_1pct/
+MATSIM_CONFIG_PATH=${MATSIM_POP_PATH}munich1pct_config_base.xml
+JAR=bavaria/target/bavaria-2.0.0.jar
+SCENARIO_NAME=asc_stage1
+RESULTS_ROOT=/dss/dsshome1/lxc09/ge37ser2/MINGA_MATSim/calib_results
+
+module load slurm_setup
+module load miniconda
+source activate fleetpy
+
+echo "Running $MAX_PARALLEL simulation(s) in parallel, $MATSIM_CPUS CPUs and $JAVA_XMX heap each"
+
+python $RUN_SCRIPT_PATH --eqasim-dir $EQUASIM_DIR --config-path $MATSIM_CONFIG_PATH --scenario-name $SCENARIO_NAME --results-root $RESULTS_ROOT --jar $JAR --runs $GRID_PATH --max-parallel $MAX_PARALLEL --matsim-cpus $MATSIM_CPUS --java-xms $JAVA_XMS --java-xmx $JAVA_XMX --cleanup-gz --continue-simulation

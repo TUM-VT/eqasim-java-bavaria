@@ -1,0 +1,58 @@
+{
+  "_comment": [
+    "Stage-1 ASC sweep after swapping in the new survey betas. 39 runs.",
+    "Centers in 'base' come from alpha_new = alpha_old - dBeta_m*Xbar_m + dU_car,",
+    "with car.alpha_u pinned at 0 as the reference, so car's own beta-driven",
+    "utility shift (dU_car ~ -0.214, placeholder Xbar: 15 min / 1.5 EUR) is carried",
+    "over onto every other mode. Replace Xbar by real per-mode means from the last",
+    "calibrated run to sharpen these centers.",
+    "bavariaDrt.alpha_u is held CONSTANT at its new survey-estimated value and is",
+    "never varied - not in the grid, not in the reference run.",
+    "Grid: PT x walk x bike = 4*3*3 = 36 runs. PT gets the finest resolution since",
+    "its waiting-time beta changed most. Step widths for walk/bike are set by the",
+    "uncertainty in dU_car (a common offset to all non-car modes), not by their own",
+    "beta changes, which are below 2 percent. Note that the all-low and all-high",
+    "corners of the grid are exactly that dU_car direction.",
+    "bavariaCarPassenger is axis-probed (2 runs) rather than gridded: its own beta",
+    "change is the largest single one, but its modal share is small.",
+    "ref_old_asc keeps the OLD ASCs of the other modes so you can see how far the",
+    "new betas alone move the split - that run validates or refutes dU_car above."
+  ],
+
+  "base": {
+    "car.alpha_u": 0.0,
+    "walk.alpha_u": -0.31,
+    "bike.alpha_u": -1.41,
+    "bavariaCarPassenger.alpha_u": -2.31,
+    "pt.alpha_u": -0.75,
+    "bavariaDrt.alpha_u": -0.5969
+  },
+
+  "extra_args": ["--use-vdf", "true"],
+
+  "grid": {
+    "pt.alpha_u": [-0.6, -0.7, -0.8, -0.9],
+    "walk.alpha_u": [-0.21, -0.31, -0.41],
+    "bike.alpha_u": [-1.31, -1.41, -1.51]
+  },
+
+  "runs": [
+    {
+      "name": "axis_carpass_-2.11",
+      "parameters": {"bavariaCarPassenger.alpha_u": -2.11}
+    },
+    {
+      "name": "axis_carpass_-2.51",
+      "parameters": {"bavariaCarPassenger.alpha_u": -2.51}
+    },
+    {
+      "name": "ref_old_asc",
+      "parameters": {
+        "walk.alpha_u": -0.1,
+        "bike.alpha_u": -1.2,
+        "bavariaCarPassenger.alpha_u": -1.75,
+        "pt.alpha_u": -0.36
+      }
+    }
+  ]
+}
