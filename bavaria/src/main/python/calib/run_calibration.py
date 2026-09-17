@@ -262,8 +262,12 @@ def build_runs(args):
     grid = dict(spec.get("grid", {}))
     grid.update(parse_grid_args(args.grid))
 
-    for parameters in expand_grid(grid):
-        variations.append({"parameters": parameters})
+    # Without a grid, expand_grid yields one empty variation - that is the wanted
+    # "base only" run for a pure --grid invocation, but a phantom extra run as
+    # soon as the spec defines explicit runs.
+    if grid or not spec.get("runs"):
+        for parameters in expand_grid(grid):
+            variations.append({"parameters": parameters})
 
     variations.extend(spec.get("runs", []))
 

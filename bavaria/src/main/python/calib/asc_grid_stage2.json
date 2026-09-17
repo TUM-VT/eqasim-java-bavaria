@@ -1,0 +1,54 @@
+{
+  "_comment": [
+    "Stage-2 ASC sweep. 37 runs. Derived from the 24 completed stage-1 runs.",
+    "Stage 1 hit the grid boundary in all three dimensions: the best run was",
+    "pt -0.6 / walk -0.41 / bike -1.51 (share_mae 1.49pp), with monotone",
+    "improvement toward less-negative pt and more-negative walk/bike. The signed",
+    "errors (mvv) of that run and their ln(target/sim) ASC updates were:",
+    "  car           +0.46pp  -> -0.013  (reference, stays 0: already on target)",
+    "  car_passenger +0.09pp  -> -0.007  (stays -2.31: already on target)",
+    "  walk          +1.07pp  -> -0.050  -> -0.46",
+    "  bicycle       +1.85pp  -> -0.116  -> -1.63",
+    "  pt            -3.47pp  -> +0.214  -> -0.386",
+    "PT is the dominant error and needs to move UP (less negative), which lands",
+    "almost exactly on the OLD calibrated -0.36 - i.e. PT needed essentially no",
+    "dU_car compensation, unlike what stage 1 assumed.",
+    "Ranges extend from the stage-1 best in the direction each update points.",
+    "walk/bike are kept near the stage-1 best rather than fully shifted, because",
+    "raising PT pulls ~3.5pp out of the other modes and will reduce the walk/bike",
+    "surplus on its own - applying all updates at full size would double-correct.",
+    "'formula_update' is the exact simultaneous-update point, as a direct test.",
+    "NOTE the zonal split in PT, which no single global ASC can fix: umland PT is",
+    "6.4% vs 11% target (update +0.54) while munich PT is 22.7% vs 24% (+0.06).",
+    "Expect leftover PT error in the umland; that points at PT level-of-service",
+    "there, not at the ASC."
+  ],
+
+  "base": {
+    "car.alpha_u": 0.0,
+    "walk.alpha_u": -0.46,
+    "bike.alpha_u": -1.58,
+    "bavariaCarPassenger.alpha_u": -2.31,
+    "pt.alpha_u": -0.386,
+    "bavariaDrt.alpha_u": -0.5969
+  },
+
+  "extra_args": ["--use-vdf", "true"],
+
+  "grid": {
+    "pt.alpha_u": [-0.3, -0.36, -0.42, -0.48],
+    "walk.alpha_u": [-0.41, -0.46, -0.51],
+    "bike.alpha_u": [-1.51, -1.58, -1.65]
+  },
+
+  "runs": [
+    {
+      "name": "formula_update",
+      "parameters": {
+        "pt.alpha_u": -0.386,
+        "walk.alpha_u": -0.46,
+        "bike.alpha_u": -1.63
+      }
+    }
+  ]
+}
