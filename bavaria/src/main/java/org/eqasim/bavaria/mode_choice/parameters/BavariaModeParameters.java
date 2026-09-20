@@ -133,7 +133,7 @@ public class BavariaModeParameters extends ModeParameters {
 		
 		// Car
 		parameters.car.alpha_u = 0.0; // IdF -0.201465;
-		parameters.car.betaTravelTime_u_min = -0.0658 // -0.0822; // IdF -0.042431;
+		parameters.car.betaTravelTime_u_min = -0.0658; // -0.0822; // IdF -0.042431;
 		parameters.bavariaCar.isHighIncome = -0.0224;
 		parameters.bavariaCar.hasPtSubscription = -0.0544;
 		parameters.bavariaCar.isWorkTrip = 0.0438;
