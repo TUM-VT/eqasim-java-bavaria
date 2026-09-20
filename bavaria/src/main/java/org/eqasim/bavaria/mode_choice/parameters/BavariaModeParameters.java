@@ -126,14 +126,14 @@ public class BavariaModeParameters extends ModeParameters {
 
 
 		// Bicycle
-		parameters.bike.alpha_u = -1.2; // uncalibrated 0.318089528187347; IdF -2.927596;
-		parameters.bike.betaTravelTime_u_min = -0.0845; // IdF -0.093485;
+		parameters.bike.alpha_u = -1.1576 // -1.2; // uncalibrated 0.318089528187347; IdF -2.927596;
+		parameters.bike.betaTravelTime_u_min = -0.1014 // -0.0845; // IdF -0.093485;
 		parameters.bavariaBicycle.isHighIncome = -0.0253;
 
 		
 		// Car
 		parameters.car.alpha_u = 0.0; // IdF -0.201465;
-		parameters.car.betaTravelTime_u_min = -0.0822; // IdF -0.042431;
+		parameters.car.betaTravelTime_u_min = -0.0658 // -0.0822; // IdF -0.042431;
 		parameters.bavariaCar.isHighIncome = -0.0224;
 		parameters.bavariaCar.hasPtSubscription = -0.0544;
 		parameters.bavariaCar.isWorkTrip = 0.0438;
@@ -142,16 +142,16 @@ public class BavariaModeParameters extends ModeParameters {
 		parameters.bavariaCar.munichParkingSearchPenalty_min = 0.0; // off by default
 
 		// Car passenger
-		parameters.bavariaCarPassenger.alpha_u = -1.75; // uncalibrated -2.22497369171908; IdF -1.713201;
+		parameters.bavariaCarPassenger.alpha_u = -1.6491 // -1.75; // uncalibrated -2.22497369171908; IdF -1.713201;
 		parameters.bavariaCarPassenger.betaDrivingPermit_u = 0.0; // IdF -0.835542;
-		parameters.bavariaCarPassenger.betaInVehicleTravelTime_u_min = -0.0761; // uncalibrated -0.065198856305705; IdF -0.069976;
+		parameters.bavariaCarPassenger.betaInVehicleTravelTime_u_min = -0.1000 // -0.0761; // uncalibrated -0.065198856305705; IdF -0.069976;
 		parameters.bavariaCarPassenger.isHighIncome = -0.0404;
 		parameters.bavariaCarPassenger.isWorkTrip = 0.0240;
 		parameters.bavariaCarPassenger.isShoppingTrip = 0.0500;
 
 		
 		// PT
-		parameters.pt.alpha_u = -0.36; // uncalibrated -0.284650026405347; IdF 0.0;
+		parameters.pt.alpha_u = -0.1553 // -0.36; // uncalibrated -0.284650026405347; IdF 0.0;
 		parameters.pt.betaLineSwitch_u = -0.6016; // IdF -0.417658;
 		parameters.pt.betaInVehicleTime_u_min = -0.0379; // uncalibrated -0.0450421005231951; -IdF 0.025501;
 		parameters.pt.betaWaitingTime_u_min = -0.3439; // IdF -0.021801;
@@ -167,7 +167,7 @@ public class BavariaModeParameters extends ModeParameters {
 		parameters.bavariaPt.waitingTimeSubscription = 0.3526;
 
 		// DRT
-		parameters.bavariaDrt.alpha_u = -0.5969; 
+		parameters.bavariaDrt.alpha_u = -0.3662 // -0.5969; 
 		parameters.bavariaDrt.betaInVehicleTravelTime_u_min = -0.0287; 
 		parameters.bavariaDrt.betaWaitingTime_u_min = -0.2749;
 		parameters.bavariaDrt.waitingTimeDrtPtPass = 0.1942;
