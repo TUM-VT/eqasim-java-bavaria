@@ -127,7 +127,7 @@ public class BavariaModeParameters extends ModeParameters {
 
 		// Bicycle
 		parameters.bike.alpha_u = -1.1576; // -1.2; // uncalibrated 0.318089528187347; IdF -2.927596;
-		parameters.bike.betaTravelTime_u_min = -0.1014 // -0.0845; // IdF -0.093485;
+		parameters.bike.betaTravelTime_u_min = -0.1014; // -0.0845; // IdF -0.093485;
 		parameters.bavariaBicycle.isHighIncome = -0.0253;
 
 		
