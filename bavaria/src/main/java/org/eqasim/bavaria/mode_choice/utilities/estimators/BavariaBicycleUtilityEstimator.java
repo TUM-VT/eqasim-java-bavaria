@@ -35,10 +35,10 @@ public class BavariaBicycleUtilityEstimator implements UtilityEstimator {
 		double beta = parameters.bike.betaTravelTime_u_min;
 
 		if (personVariables.isHighIncome) {
-			beta += parameters.bavariaBicycle.isHighIncome;
+			beta += parameters.bavariaBicycle.betaTravelTime_highIncome_u_min;
 		}
 		if (personVariables.isMunichResident) {
-			beta += parameters.bavariaBicycle.isMunichResident;
+			beta += parameters.bavariaBicycle.betaTravelTime_munichResident_u_min;
 		}
 
 		return beta * variables.travelTime_min;

@@ -37,13 +37,13 @@ public class BavariaCarUtilityEstimator extends CarUtilityEstimator {
 		double beta = parameters.car.betaTravelTime_u_min;
 
 		if (personVariables.isHighIncome) {
-			beta += parameters.bavariaCar.isHighIncome;
+			beta += parameters.bavariaCar.betaTravelTime_highIncome_u_min;
 		}
 		if (personVariables.hasDrivingPermit) {
-			beta += parameters.bavariaCar.hasDrivingPermit;
+			beta += parameters.bavariaCar.betaTravelTime_drivingPermit_u_min;
 		}
 		if (personVariables.hasSubscription) {
-			beta += parameters.bavariaCar.hasPtSubscription;
+			beta += parameters.bavariaCar.betaTravelTime_ptSubscription_u_min;
 		}
 
 		return beta * variables.travelTime_min;

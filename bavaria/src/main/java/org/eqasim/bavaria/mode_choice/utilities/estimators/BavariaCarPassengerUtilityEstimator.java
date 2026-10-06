@@ -36,7 +36,7 @@ public class BavariaCarPassengerUtilityEstimator implements UtilityEstimator {
 		double beta = parameters.bavariaCarPassenger.betaInVehicleTravelTime_u_min;
 
 		if (personVariables.isHighIncome) {
-			beta += parameters.bavariaCarPassenger.isHighIncome;
+			beta += parameters.bavariaCarPassenger.betaInVehicleTravelTime_highIncome_u_min;
 		}
 
 		return beta * variables.travelTime_min;

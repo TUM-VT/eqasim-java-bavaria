@@ -35,16 +35,16 @@ public class BavariaWalkUtilityEstimator implements UtilityEstimator {
 		double beta = parameters.walk.betaTravelTime_u_min;
 
 		if (personVariables.isHighIncome) {
-			beta += parameters.bavariaWalk.isHighIncome;
+			beta += parameters.bavariaWalk.betaTravelTime_highIncome_u_min;
 		}
 		if (personVariables.hasDrivingPermit) {
-			beta += parameters.bavariaWalk.hasDrivingPermit;
+			beta += parameters.bavariaWalk.betaTravelTime_drivingPermit_u_min;
 		}
 		if (personVariables.hasSubscription) {
-			beta += parameters.bavariaWalk.hasPtSubscription;
+			beta += parameters.bavariaWalk.betaTravelTime_ptSubscription_u_min;
 		}
 		if (personVariables.isMunichResident) {
-			beta += parameters.bavariaWalk.isMunichResident;
+			beta += parameters.bavariaWalk.betaTravelTime_munichResident_u_min;
 		}
 
 		return beta * variables.travelTime_min;

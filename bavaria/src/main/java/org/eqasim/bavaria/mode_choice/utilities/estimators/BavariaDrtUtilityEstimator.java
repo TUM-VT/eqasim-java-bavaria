@@ -41,10 +41,10 @@ public class BavariaDrtUtilityEstimator implements UtilityEstimator {
 		double beta = parameters.bavariaDrt.betaInVehicleTravelTime_u_min;
 
 		if (personVariables.isHighIncome) {
-			beta += parameters.bavariaDrt.isHighIncome;
+			beta += parameters.bavariaDrt.betaInVehicleTravelTime_highIncome_u_min;
 		}
 		if (personVariables.hasSubscription) {
-			beta += parameters.bavariaDrt.hasPtSubscription;
+			beta += parameters.bavariaDrt.betaInVehicleTravelTime_ptSubscription_u_min;
 		}
 
 		return beta * variables.travelTime_min;

@@ -49,16 +49,16 @@ public class BavariaPtUtilityEstimator implements UtilityEstimator {
 		double beta = parameters.pt.betaWaitingTime_u_min;
 
 		if (personVariables.isHighIncome) {
-			beta += parameters.bavariaPt.waitingTimeHighIncome;
+			beta += parameters.bavariaPt.betaWaitingTime_highIncome_u_min;
 		}
 		if (personVariables.isMunichResident) {
-			beta += parameters.bavariaPt.waitingTimeMunichResident;
+			beta += parameters.bavariaPt.betaWaitingTime_munichResident_u_min;
 		}
 		if (personVariables.hasSubscription) {
-			beta += parameters.bavariaPt.waitingTimeSubscription;
+			beta += parameters.bavariaPt.betaWaitingTime_ptSubscription_u_min;
 		}
 		if (personVariables.hasCarAvailability) {
-			beta += parameters.bavariaPt.waitingTimeCarAvailable;
+			beta += parameters.bavariaPt.betaWaitingTime_carAvailable_u_min;
 		}
 
 		return beta * ptVariables.waitingTime_min;
@@ -69,7 +69,7 @@ public class BavariaPtUtilityEstimator implements UtilityEstimator {
 		double beta = parameters.pt.betaInVehicleTime_u_min;
 
 		if (personVariables.isHighIncome) {
-			beta += parameters.bavariaPt.isHighIncome;
+			beta += parameters.bavariaPt.betaInVehicleTime_highIncome_u_min;
 		}
 
 		return beta * ptVariables.inVehicleTime_min;
