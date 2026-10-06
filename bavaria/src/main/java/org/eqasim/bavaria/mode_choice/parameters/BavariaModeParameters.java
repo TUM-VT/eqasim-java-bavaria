@@ -2,6 +2,15 @@ package org.eqasim.bavaria.mode_choice.parameters;
 
 import org.eqasim.core.simulation.mode_choice.parameters.ModeParameters;
 
+/**
+ * Mode-choice parameters following Mueller/Engelhardt (EWGT2026), Table 2 -
+ * the MNL specification WITHOUT trip purposes, perceived-cost column.
+ *
+ * All socio-demographic terms below are INTERACTIONS ON TRAVEL TIME (the paper's
+ * b_tt_&lt;mode&gt;_&lt;attribute&gt;), not standalone constants: the estimators sum them
+ * into a mode-specific coefficient and multiply by travel time once. The waiting
+ * terms work the same way on waiting time.
+ */
 public class BavariaModeParameters extends ModeParameters {
 
 	public class BavariaWalkParameters {
@@ -13,13 +22,13 @@ public class BavariaModeParameters extends ModeParameters {
 
 	public class BavariaBicycleParameters {
 		public double isHighIncome;
+		public double isMunichResident;
 	}
 
 	public class BavariaCarParameters {
 		public double isHighIncome;
+		public double hasDrivingPermit;
 		public double hasPtSubscription;
-		public double isWorkTrip;
-		public double isShoppingTrip;
 
 		// Altstadtring closure measure (BavariaCarRegulatedUtilityEstimator)
 		public double altstadtringPenalty_u;
@@ -42,32 +51,23 @@ public class BavariaModeParameters extends ModeParameters {
 	public class BavariaCarPassengerParameters {
 		public double alpha_u;
 		public double betaInVehicleTravelTime_u_min;
-		public double betaDrivingPermit_u;
 		public double isHighIncome;
-		public double isWorkTrip;
-		public double isShoppingTrip;
 	}
 
 	public class BavariaPtParameters {
-		public double betaDrivingPermit_u;
-		public double onlyBus_u;
 		public double isHighIncome;
 		public double waitingTimeHighIncome;
 		public double waitingTimeMunichResident;
 		public double waitingTimeSubscription;
-		public double waitingTimeShopping;
-		public double isWorkTrip;
-		public double isShoppingTrip;
+		public double waitingTimeCarAvailable;
 	}
 
 	public class BavariaDrtParameters {
-		public double isHighIncome;
-		public double isWorkTrip;
 		public double alpha_u;
 		public double betaInVehicleTravelTime_u_min;
 		public double betaWaitingTime_u_min;
-		public double waitingTimeDrtPtPass;
-
+		public double isHighIncome;
+		public double hasPtSubscription;
 	}
 
 	public final BavariaWalkParameters bavariaWalk = new BavariaWalkParameters();
@@ -96,82 +96,74 @@ public class BavariaModeParameters extends ModeParameters {
 	}
 
 	/**
-	 * Populates this instance with the calibrated Bavaria baseline values.
+	 * Populates this instance with the Bavaria baseline values.
 	 * Extracted as an instance method (rather than inlined in {@link #buildDefault()})
 	 * so subclasses (e.g. scenario-specific profiles like Sc6PushModeParameters) can
-	 * reuse the full baseline calibration and layer their own overrides on top,
+	 * reuse the full baseline and layer their own overrides on top,
 	 * without duplicating it.
+	 *
+	 * The alpha_u values are the estimated ASCs and serve as the STARTING POINT for
+	 * the simulation calibration; car stays pinned at 0 as the reference alternative.
 	 */
 	protected void applyDefaults() {
+		// From Mueller/Engelhardt (EWGT2026), Table 2 - the MNL specification WITHOUT trip purposes, perceived-cost column.
 		BavariaModeParameters parameters = this;
 
-		// Access
-		// not specifically estimated for Bavaria, using values from walk.betaTravelTime_u_min
-		parameters.betaAccessTime_u_min = -0.0686; // IdF -0.031239; todo
+		// Access / egress is walking, so it uses the walk travel-time coefficient.
+		parameters.betaAccessTime_u_min = -0.0786;
 
 		// Cost
-		parameters.betaCost_u_MU = -0.1215; // IdF  -0.310998;
-		parameters.lambdaCostEuclideanDistance = 0.0; // IdF -0.257501;
+		parameters.betaCost_u_MU = -0.2177;
+		parameters.lambdaCostEuclideanDistance = 0.0;
 		parameters.referenceEuclideanDistance_km = 4.4;
 
-		
-
 		// Walk
-		parameters.walk.alpha_u = -0.1; // uncalibrated 0.774228551231712; IdF 1.685152;
-		parameters.walk.betaTravelTime_u_min = -0.0686; // IdF -0.162285;
-		parameters.bavariaWalk.isHighIncome = -0.0216;
-		parameters.bavariaWalk.hasDrivingPermit = -0.0318;
-		parameters.bavariaWalk.hasPtSubscription = 0.0175;
-		parameters.bavariaWalk.isMunichResident = 0.0105;
-
+		parameters.walk.alpha_u = 0.8438;
+		parameters.walk.betaTravelTime_u_min = -0.0786;
+		parameters.bavariaWalk.isHighIncome = -0.0210;
+		parameters.bavariaWalk.hasDrivingPermit = -0.0246;
+		parameters.bavariaWalk.hasPtSubscription = 0.0187;
+		parameters.bavariaWalk.isMunichResident = 0.0144;
 
 		// Bicycle
-		parameters.bike.alpha_u = -1.1576; // -1.2; // uncalibrated 0.318089528187347; IdF -2.927596;
-		parameters.bike.betaTravelTime_u_min = -0.1014; // -0.0845; // IdF -0.093485;
-		parameters.bavariaBicycle.isHighIncome = -0.0253;
+		parameters.bike.alpha_u = 0.4624;
+		parameters.bike.betaTravelTime_u_min = -0.0995;
+		parameters.bavariaBicycle.isHighIncome = -0.0248;
+		parameters.bavariaBicycle.isMunichResident = 0.0176;
 
-		
-		// Car
-		parameters.car.alpha_u = 0.0; // IdF -0.201465;
-		parameters.car.betaTravelTime_u_min = -0.0658; // -0.0822; // IdF -0.042431;
-		parameters.bavariaCar.isHighIncome = -0.0224;
-		parameters.bavariaCar.hasPtSubscription = -0.0544;
-		parameters.bavariaCar.isWorkTrip = 0.0438;
-		parameters.bavariaCar.isShoppingTrip = 0.0678;
+		// Car (reference alternative: alpha_u stays 0)
+		parameters.car.alpha_u = 0.0;
+		parameters.car.betaTravelTime_u_min = -0.1105;
+		parameters.bavariaCar.isHighIncome = -0.0207;
+		// Note: car is only available to licence holders (BavariaModeAvailability), so
+		// this term applies to every simulated car trip - the effective car travel-time
+		// coefficient is -0.1105 + 0.0708 = -0.0397.
+		parameters.bavariaCar.hasDrivingPermit = 0.0708;
+		parameters.bavariaCar.hasPtSubscription = -0.0449;
 		parameters.bavariaCar.altstadtringPenalty_u = 0.0; // off by default, see BavariaCarRegulatedUtilityEstimator / Sc6PushModeParameters
 		parameters.bavariaCar.munichParkingSearchPenalty_min = 0.0; // off by default
 
-		// Car passenger
-		parameters.bavariaCarPassenger.alpha_u = -1.6491; // -1.75; // uncalibrated -2.22497369171908; IdF -1.713201;
-		parameters.bavariaCarPassenger.betaDrivingPermit_u = 0.0; // IdF -0.835542;
-		parameters.bavariaCarPassenger.betaInVehicleTravelTime_u_min = -0.1000; // -0.0761; // uncalibrated -0.065198856305705; IdF -0.069976;
-		parameters.bavariaCarPassenger.isHighIncome = -0.0404;
-		parameters.bavariaCarPassenger.isWorkTrip = 0.0240;
-		parameters.bavariaCarPassenger.isShoppingTrip = 0.0500;
+		// Car passenger (perceived costs are 0.00 EUR/km, hence no cost term)
+		parameters.bavariaCarPassenger.alpha_u = -2.0608;
+		parameters.bavariaCarPassenger.betaInVehicleTravelTime_u_min = -0.0638;
+		parameters.bavariaCarPassenger.isHighIncome = -0.0374;
 
-		
 		// PT
-		parameters.pt.alpha_u = -0.1553; // -0.36; // uncalibrated -0.284650026405347; IdF 0.0;
-		parameters.pt.betaLineSwitch_u = -0.6016; // IdF -0.417658;
-		parameters.pt.betaInVehicleTime_u_min = -0.0379; // uncalibrated -0.0450421005231951; -IdF 0.025501;
-		parameters.pt.betaWaitingTime_u_min = -0.3439; // IdF -0.021801;
+		parameters.pt.alpha_u = -0.1226;
+		parameters.pt.betaInVehicleTime_u_min = -0.0126;
+		parameters.pt.betaLineSwitch_u = -0.6149;
+		parameters.pt.betaWaitingTime_u_min = -0.2054;
+		parameters.bavariaPt.isHighIncome = -0.0148;
+		parameters.bavariaPt.waitingTimeHighIncome = -0.1137;
+		parameters.bavariaPt.waitingTimeMunichResident = 0.0978;
+		parameters.bavariaPt.waitingTimeSubscription = 0.2615;
+		parameters.bavariaPt.waitingTimeCarAvailable = -0.1660;
 
-		parameters.bavariaPt.betaDrivingPermit_u = 0.0; // IdF -0.531426;
-		parameters.bavariaPt.onlyBus_u = 0.0; // IdF -1.416309;
-		parameters.bavariaPt.isHighIncome = -0.0183;
-		parameters.bavariaPt.isWorkTrip = 0.0419;
-		parameters.bavariaPt.isShoppingTrip = 0.0456;
-		parameters.bavariaPt.waitingTimeShopping = -0.1175;
-		parameters.bavariaPt.waitingTimeHighIncome = -0.1483;
-		parameters.bavariaPt.waitingTimeMunichResident = 0.0979;
-		parameters.bavariaPt.waitingTimeSubscription = 0.3526;
-
-		// DRT
-		parameters.bavariaDrt.alpha_u = -0.3662; // -0.5969; 
-		parameters.bavariaDrt.betaInVehicleTravelTime_u_min = -0.0287; 
-		parameters.bavariaDrt.betaWaitingTime_u_min = -0.2749;
-		parameters.bavariaDrt.waitingTimeDrtPtPass = 0.1942;
-		parameters.bavariaDrt.isHighIncome = -0.0408;
-		parameters.bavariaDrt.isWorkTrip = 0.0178;
+		// DRT / AMOD
+		parameters.bavariaDrt.alpha_u = -0.7274;
+		parameters.bavariaDrt.betaInVehicleTravelTime_u_min = -0.0327;
+		parameters.bavariaDrt.betaWaitingTime_u_min = -0.1117;
+		parameters.bavariaDrt.isHighIncome = -0.0381;
+		parameters.bavariaDrt.hasPtSubscription = 0.0277;
 	}
 }

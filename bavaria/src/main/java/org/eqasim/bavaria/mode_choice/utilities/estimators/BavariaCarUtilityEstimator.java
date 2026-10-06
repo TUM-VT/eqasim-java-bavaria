@@ -33,22 +33,21 @@ public class BavariaCarUtilityEstimator extends CarUtilityEstimator {
 		return parameters.betaAccessTime_u_min * variables.accessEgressTime_min;
 	}
 
-	protected double estimateHighIncomeUtility(BavariaPersonVariables variables) {
-		return variables.isHighIncome ? parameters.bavariaCar.isHighIncome : 0.0;
-	}
+	protected double estimateTravelTimeUtility(CarVariables variables, BavariaPersonVariables personVariables) {
+		double beta = parameters.car.betaTravelTime_u_min;
 
-	protected double estimatePtSubscriptionUtility(BavariaPersonVariables variables) {
-		return variables.hasSubscription ? parameters.bavariaCar.hasPtSubscription : 0.0;
-	}
+		if (personVariables.isHighIncome) {
+			beta += parameters.bavariaCar.isHighIncome;
+		}
+		if (personVariables.hasDrivingPermit) {
+			beta += parameters.bavariaCar.hasDrivingPermit;
+		}
+		if (personVariables.hasSubscription) {
+			beta += parameters.bavariaCar.hasPtSubscription;
+		}
 
-	protected double estimateWorkPurposeUtility(DiscreteModeChoiceTrip trip) {
-		return trip.getDestinationActivity().getType().equals("work") ? parameters.bavariaCar.isWorkTrip : 0.0;
+		return beta * variables.travelTime_min;
 	}
-
-	protected double estimateShoppingPurposeUtility(DiscreteModeChoiceTrip trip) {
-		return trip.getDestinationActivity().getType().equals("shop") ? parameters.bavariaCar.isShoppingTrip : 0.0;
-	}
-
 
 	@Override
 	public double estimateUtility(Person person, DiscreteModeChoiceTrip trip, List<? extends PlanElement> elements,
@@ -57,15 +56,11 @@ public class BavariaCarUtilityEstimator extends CarUtilityEstimator {
 		BavariaPersonVariables personVariables = personPredictor.predictVariables(person, trip, elements);
 
 		double utility = 0.0;
-		
+
 		utility += estimateConstantUtility();
-		utility += estimateTravelTimeUtility(variables);
+		utility += estimateTravelTimeUtility(variables, personVariables);
 		utility += estimateAccessEgressTimeUtility(variables);
 		utility += estimateMonetaryCostUtility(variables);
-		utility += estimateHighIncomeUtility(personVariables);
-		utility += estimatePtSubscriptionUtility(personVariables);
-		utility += estimateWorkPurposeUtility(trip);
-		utility += estimateShoppingPurposeUtility(trip);
 
 		return utility;
 	}

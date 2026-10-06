@@ -44,52 +44,40 @@ public class BavariaPtUtilityEstimator implements UtilityEstimator {
 		return parameters.pt.betaLineSwitch_u * variables.numberOfLineSwitches;
 	}
 
-	protected double estimateWaitingTimeUtility(BavariaPtVariables ptVariables, BavariaPersonVariables personVariables,
-		DiscreteModeChoiceTrip trip) 
-		{
-		double waitingTime_min = parameters.pt.betaWaitingTime_u_min;
+	protected double estimateWaitingTimeUtility(BavariaPtVariables ptVariables,
+			BavariaPersonVariables personVariables) {
+		double beta = parameters.pt.betaWaitingTime_u_min;
+
 		if (personVariables.isHighIncome) {
-			waitingTime_min += parameters.bavariaPt.waitingTimeHighIncome;
+			beta += parameters.bavariaPt.waitingTimeHighIncome;
 		}
 		if (personVariables.isMunichResident) {
-			waitingTime_min += parameters.bavariaPt.waitingTimeMunichResident;
+			beta += parameters.bavariaPt.waitingTimeMunichResident;
 		}
 		if (personVariables.hasSubscription) {
-			waitingTime_min += parameters.bavariaPt.waitingTimeSubscription;
+			beta += parameters.bavariaPt.waitingTimeSubscription;
 		}
-		if (trip.getDestinationActivity().getType().equals("shop")) {
-			waitingTime_min += parameters.bavariaPt.waitingTimeShopping;
+		if (personVariables.hasCarAvailability) {
+			beta += parameters.bavariaPt.waitingTimeCarAvailable;
 		}
-		return waitingTime_min * ptVariables.waitingTime_min;
+
+		return beta * ptVariables.waitingTime_min;
 	}
 
-	protected double estimateWorkPurposeUtility(DiscreteModeChoiceTrip trip) {
-		return trip.getDestinationActivity().getType().equals("work") ? parameters.bavariaPt.isWorkTrip : 0.0;
-	}
+	protected double estimateInVehicleTimeUtility(BavariaPtVariables ptVariables,
+			BavariaPersonVariables personVariables) {
+		double beta = parameters.pt.betaInVehicleTime_u_min;
 
-	protected double estimateShoppingPurposeUtility(DiscreteModeChoiceTrip trip) {
-		return trip.getDestinationActivity().getType().equals("shop") ? parameters.bavariaPt.isShoppingTrip : 0.0;
+		if (personVariables.isHighIncome) {
+			beta += parameters.bavariaPt.isHighIncome;
+		}
+
+		return beta * ptVariables.inVehicleTime_min;
 	}
 
 	protected double estimateMonetaryCostUtility(BavariaPtVariables variables, double cost_EUR) {
 		return parameters.betaCost_u_MU * EstimatorUtils.interaction(variables.euclideanDistance_km,
 				parameters.referenceEuclideanDistance_km, parameters.lambdaCostEuclideanDistance) * cost_EUR;
-	}
-
-	protected double estimateInVehicleTimeUtility(BavariaPtVariables variables) {
-		return parameters.pt.betaInVehicleTime_u_min * variables.inVehicleTime_min;
-	}
-
-	protected double estimateDrivingPermitUtility(BavariaPersonVariables variables) {
-		return variables.hasDrivingPermit ? parameters.bavariaPt.betaDrivingPermit_u : 0.0;
-	}
-
-	protected double estimateHighIncomeUtility(BavariaPersonVariables variables) {
-		return variables.isHighIncome ? parameters.bavariaPt.isHighIncome : 0.0;
-	}	
-
-	protected double estimateOnlyBus(BavariaPtVariables variables) {
-		return variables.isOnlyBus ? parameters.bavariaPt.onlyBus_u : 0.0;
 	}
 
 	@Override
@@ -104,14 +92,9 @@ public class BavariaPtUtilityEstimator implements UtilityEstimator {
 		utility += estimateConstantUtility();
 		utility += estimateAccessEgressTimeUtility(ptVariables);
 		utility += estimateLineSwitchUtility(ptVariables);
-		utility += estimateWaitingTimeUtility(ptVariables, personVariables, trip);
+		utility += estimateWaitingTimeUtility(ptVariables, personVariables);
+		utility += estimateInVehicleTimeUtility(ptVariables, personVariables);
 		utility += estimateMonetaryCostUtility(ptVariables, cost_EUR);
-		utility += estimateInVehicleTimeUtility(ptVariables);
-		utility += estimateOnlyBus(ptVariables);
-		utility += estimateDrivingPermitUtility(personVariables);
-		utility += estimateHighIncomeUtility(personVariables);
-		utility += estimateWorkPurposeUtility(trip);
-		utility += estimateShoppingPurposeUtility(trip);
 
 		return utility;
 	}

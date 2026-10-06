@@ -33,52 +33,55 @@ public class BavariaDrtUtilityEstimator implements UtilityEstimator {
 		this.costModel = costModel;
 	}
 
-    protected double estimateConstantUtility() {
-		return this.parameters.bavariaDrt.alpha_u;
-    }
-
-    protected double estimateTravelTimeUtility(DrtVariables variables) {
-		return this.parameters.bavariaDrt.betaInVehicleTravelTime_u_min * variables.travelTime_min;
-    }
-
-    protected double estimateWaitingTimeUtility(DrtVariables variables) {
-        return this.parameters.bavariaDrt.betaWaitingTime_u_min * variables.waitingTime_min;
-    }
-
-	protected double estimateHighIncomeUtility(BavariaPersonVariables variables) {
-		return variables.isHighIncome ? parameters.bavariaPt.isHighIncome : 0.0;
-	}	
-
-	protected double estimateWorkPurposeUtility(DiscreteModeChoiceTrip trip) {
-		return trip.getDestinationActivity().getType().equals("work") ? parameters.bavariaDrt.isWorkTrip : 0.0;
+	protected double estimateConstantUtility() {
+		return parameters.bavariaDrt.alpha_u;
 	}
 
-    protected double estimateMonetaryCostUtility(DrtVariables variables, double cost_MU) {
-        return this.parameters.betaCost_u_MU * EstimatorUtils.interaction(variables.euclideanDistance_km,
-                this.parameters.referenceEuclideanDistance_km, this.parameters.lambdaCostEuclideanDistance) * cost_MU;
-    }
+	protected double estimateTravelTimeUtility(DrtVariables variables, BavariaPersonVariables personVariables) {
+		double beta = parameters.bavariaDrt.betaInVehicleTravelTime_u_min;
 
-    protected double estimateAccessEgressTimeUtility(DrtVariables variables) {
-        return this.parameters.walk.betaTravelTime_u_min * variables.accessEgressTime_min;
-    }
+		if (personVariables.isHighIncome) {
+			beta += parameters.bavariaDrt.isHighIncome;
+		}
+		if (personVariables.hasSubscription) {
+			beta += parameters.bavariaDrt.hasPtSubscription;
+		}
 
-    @Override
-    public double estimateUtility(Person person, DiscreteModeChoiceTrip trip, List<? extends PlanElement> elements) {
-        CandidateCounter.DRT_ESTIMATOR_CALLS.incrementAndGet();
-        DrtVariables variables = this.drtPredictor.predictVariables(person, trip, elements);
-        CandidateCounter.DRT_TOTAL_TRAVEL_TIME_MIN.add(variables.travelTime_min);
-        CandidateCounter.DRT_TOTAL_DISTANCE_KM.add(variables.euclideanDistance_km);
+		return beta * variables.travelTime_min;
+	}
 
-        double utility = 0.0;
-        double cost_MU = costModel.calculateCost_MU(person, trip, elements);
+	protected double estimateWaitingTimeUtility(DrtVariables variables) {
+		return parameters.bavariaDrt.betaWaitingTime_u_min * variables.waitingTime_min;
+	}
 
-        utility += estimateConstantUtility();
-        utility += estimateTravelTimeUtility(variables);
-        utility += estimateWaitingTimeUtility(variables);
-        utility += estimateAccessEgressTimeUtility(variables);
-        utility += estimateHighIncomeUtility(personPredictor.predictVariables(person, trip, elements));
-        utility += estimateWorkPurposeUtility(trip);
-        utility += estimateMonetaryCostUtility(variables, cost_MU);
-        return utility;
-    }
+	protected double estimateMonetaryCostUtility(DrtVariables variables, double cost_MU) {
+		return parameters.betaCost_u_MU * EstimatorUtils.interaction(variables.euclideanDistance_km,
+				parameters.referenceEuclideanDistance_km, parameters.lambdaCostEuclideanDistance) * cost_MU;
+	}
+
+	protected double estimateAccessEgressTimeUtility(DrtVariables variables) {
+		return parameters.betaAccessTime_u_min * variables.accessEgressTime_min;
+	}
+
+	@Override
+	public double estimateUtility(Person person, DiscreteModeChoiceTrip trip, List<? extends PlanElement> elements) {
+		CandidateCounter.DRT_ESTIMATOR_CALLS.incrementAndGet();
+		DrtVariables variables = this.drtPredictor.predictVariables(person, trip, elements);
+		CandidateCounter.DRT_TOTAL_TRAVEL_TIME_MIN.add(variables.travelTime_min);
+		CandidateCounter.DRT_TOTAL_DISTANCE_KM.add(variables.euclideanDistance_km);
+
+		BavariaPersonVariables personVariables = personPredictor.predictVariables(person, trip, elements);
+
+		double cost_MU = costModel.calculateCost_MU(person, trip, elements);
+
+		double utility = 0.0;
+
+		utility += estimateConstantUtility();
+		utility += estimateTravelTimeUtility(variables, personVariables);
+		utility += estimateWaitingTimeUtility(variables);
+		utility += estimateAccessEgressTimeUtility(variables);
+		utility += estimateMonetaryCostUtility(variables, cost_MU);
+
+		return utility;
+	}
 }

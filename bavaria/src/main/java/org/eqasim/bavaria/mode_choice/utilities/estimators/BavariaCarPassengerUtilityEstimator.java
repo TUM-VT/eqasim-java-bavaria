@@ -31,28 +31,19 @@ public class BavariaCarPassengerUtilityEstimator implements UtilityEstimator {
 		return parameters.bavariaCarPassenger.alpha_u;
 	}
 
-	protected double estimateTravelTimeUtility(BavariaCarPassengerVariables variables) {
-		return parameters.bavariaCarPassenger.betaInVehicleTravelTime_u_min * variables.travelTime_min;
+	protected double estimateTravelTimeUtility(BavariaCarPassengerVariables variables,
+			BavariaPersonVariables personVariables) {
+		double beta = parameters.bavariaCarPassenger.betaInVehicleTravelTime_u_min;
+
+		if (personVariables.isHighIncome) {
+			beta += parameters.bavariaCarPassenger.isHighIncome;
+		}
+
+		return beta * variables.travelTime_min;
 	}
 
 	protected double estimateAccessEgressTimeUtility(BavariaCarPassengerVariables variables) {
 		return parameters.betaAccessTime_u_min * variables.accessEgressTime_min;
-	}
-
-	protected double estimateDrivingPermit(BavariaPersonVariables variables) {
-		return variables.hasDrivingPermit ? parameters.bavariaCarPassenger.betaDrivingPermit_u : 0.0;
-	}
-
-	protected double estimaleHighIncomeUtility(BavariaPersonVariables variables) {
-		return variables.isHighIncome ? parameters.bavariaCarPassenger.isHighIncome : 0.0;
-	}
-
-	protected double estimateWorkPurposeUtility(DiscreteModeChoiceTrip trip) {
-		return trip.getDestinationActivity().getType().equals("work") ? parameters.bavariaCarPassenger.isWorkTrip : 0.0;
-	}
-
-	protected double estimateShoppingPurposeUtility(DiscreteModeChoiceTrip trip) {
-		return trip.getDestinationActivity().getType().equals("shop") ? parameters.bavariaCarPassenger.isShoppingTrip : 0.0;
 	}
 
 	@Override
@@ -63,12 +54,8 @@ public class BavariaCarPassengerUtilityEstimator implements UtilityEstimator {
 		double utility = 0.0;
 
 		utility += estimateConstantUtility();
-		utility += estimateTravelTimeUtility(variables);
+		utility += estimateTravelTimeUtility(variables, personVariables);
 		utility += estimateAccessEgressTimeUtility(variables);
-		utility += estimateDrivingPermit(personVariables);
-		utility += estimaleHighIncomeUtility(personVariables);
-		utility += estimateWorkPurposeUtility(trip);
-		utility += estimateShoppingPurposeUtility(trip);
 
 		return utility;
 	}

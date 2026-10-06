@@ -5,53 +5,60 @@ import java.util.List;
 import org.eqasim.bavaria.mode_choice.parameters.BavariaModeParameters;
 import org.eqasim.bavaria.mode_choice.utilities.predictors.BavariaPersonPredictor;
 import org.eqasim.bavaria.mode_choice.utilities.variables.BavariaPersonVariables;
-import org.eqasim.core.simulation.mode_choice.utilities.estimators.WalkUtilityEstimator;
+import org.eqasim.core.simulation.mode_choice.utilities.UtilityEstimator;
 import org.eqasim.core.simulation.mode_choice.utilities.predictors.WalkPredictor;
+import org.eqasim.core.simulation.mode_choice.utilities.variables.WalkVariables;
 import org.matsim.api.core.v01.population.Person;
 import org.matsim.api.core.v01.population.PlanElement;
 import org.matsim.contribs.discrete_mode_choice.model.DiscreteModeChoiceTrip;
 
 import com.google.inject.Inject;
 
-public class BavariaWalkUtilityEstimator extends WalkUtilityEstimator {
+public class BavariaWalkUtilityEstimator implements UtilityEstimator {
 	private final BavariaModeParameters parameters;
 	private final BavariaPersonPredictor personPredictor;
+	private final WalkPredictor predictor;
 
 	@Inject
 	public BavariaWalkUtilityEstimator(BavariaModeParameters parameters, BavariaPersonPredictor personPredictor,
 			WalkPredictor predictor) {
-		super(parameters, predictor);
 		this.parameters = parameters;
 		this.personPredictor = personPredictor;
+		this.predictor = predictor;
 	}
 
-	protected double estimateHighIncomeUtility(BavariaPersonVariables variables) {
-		return variables.isHighIncome ? parameters.bavariaWalk.isHighIncome : 0.0;
-	}
-	
-	protected double estimateDrivingPermitUtility(BavariaPersonVariables variables) {
-		return variables.hasDrivingPermit ? parameters.bavariaWalk.hasDrivingPermit : 0.0;
+	protected double estimateConstantUtility() {
+		return parameters.walk.alpha_u;
 	}
 
-	protected double estimatePtSubscriptionUtility(BavariaPersonVariables variables) {
-		return variables.hasSubscription ? parameters.bavariaWalk.hasPtSubscription : 0.0;
-	}
+	protected double estimateTravelTimeUtility(WalkVariables variables, BavariaPersonVariables personVariables) {
+		double beta = parameters.walk.betaTravelTime_u_min;
 
-	protected double estimateMunichResidentUtility(BavariaPersonVariables variables) {
-		return variables.isMunichResident ? parameters.bavariaWalk.isMunichResident : 0.0;
+		if (personVariables.isHighIncome) {
+			beta += parameters.bavariaWalk.isHighIncome;
+		}
+		if (personVariables.hasDrivingPermit) {
+			beta += parameters.bavariaWalk.hasDrivingPermit;
+		}
+		if (personVariables.hasSubscription) {
+			beta += parameters.bavariaWalk.hasPtSubscription;
+		}
+		if (personVariables.isMunichResident) {
+			beta += parameters.bavariaWalk.isMunichResident;
+		}
+
+		return beta * variables.travelTime_min;
 	}
 
 	@Override
 	public double estimateUtility(Person person, DiscreteModeChoiceTrip trip, List<? extends PlanElement> elements) {
+		WalkVariables variables = predictor.predictVariables(person, trip, elements);
 		BavariaPersonVariables personVariables = personPredictor.predictVariables(person, trip, elements);
 
 		double utility = 0.0;
 
-		utility += super.estimateUtility(person, trip, elements);
-		utility += estimateHighIncomeUtility(personVariables);
-		utility += estimateDrivingPermitUtility(personVariables);
-		utility += estimatePtSubscriptionUtility(personVariables);
-		utility += estimateMunichResidentUtility(personVariables);
+		utility += estimateConstantUtility();
+		utility += estimateTravelTimeUtility(variables, personVariables);
 
 		return utility;
 	}
