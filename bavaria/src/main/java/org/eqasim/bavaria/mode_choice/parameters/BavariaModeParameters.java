@@ -105,8 +105,15 @@ public class BavariaModeParameters extends ModeParameters {
 	 * reuse the full baseline and layer their own overrides on top,
 	 * without duplicating it.
 	 *
-	 * The alpha_u values are the estimated ASCs and serve as the STARTING POINT for
-	 * the simulation calibration; car stays pinned at 0 as the reference alternative.
+	 * Values are from Mueller/Engelhardt (EWGT2026), Table 2, EXCEPT where marked
+	 * "calibrated" - those were fitted against the MiD modal split and trip lengths
+	 * for the munich_1pct base case. car stays pinned at 0 as the reference
+	 * alternative, which is what makes the other ASCs identifiable.
+	 *
+	 * Calibration result: share_mae 0.956 pp, dist_mae 0.945 km (mvv shares within
+	 * 0.08 pp on every mode). The remaining error is zonal - munich pt +3.50 pp,
+	 * umland pt -2.24 pp - which four global constants cannot fix; that would need
+	 * zone-specific ASCs.
 	 */
 	protected void applyDefaults() {
 		// From Mueller/Engelhardt (EWGT2026), Table 2 - the MNL specification WITHOUT trip purposes, perceived-cost column.
@@ -121,7 +128,7 @@ public class BavariaModeParameters extends ModeParameters {
 		parameters.referenceEuclideanDistance_km = 4.4;
 
 		// Walk
-		parameters.walk.alpha_u = 0.8438;
+		parameters.walk.alpha_u = 0.0267; // calibrated, estimated 0.8438
 		parameters.walk.betaTravelTime_u_min = -0.0786;
 		parameters.bavariaWalk.betaTravelTime_highIncome_u_min = -0.0210;
 		parameters.bavariaWalk.betaTravelTime_drivingPermit_u_min = -0.0246;
@@ -129,7 +136,10 @@ public class BavariaModeParameters extends ModeParameters {
 		parameters.bavariaWalk.betaTravelTime_munichResident_u_min = 0.0144;
 
 		// Bicycle
-		parameters.bike.alpha_u = 0.4624;
+		parameters.bike.alpha_u = -1.1293; // calibrated, estimated 0.4624
+		// Left at the estimate deliberately: a stronger beta improved the median
+		// length (3.11 km against a 2 km reference) but -0.11/-0.12 sit 1.3/2.6
+		// standard errors out, and the share fit gained nothing.
 		parameters.bike.betaTravelTime_u_min = -0.0995;
 		parameters.bavariaBicycle.betaTravelTime_highIncome_u_min = -0.0248;
 		parameters.bavariaBicycle.betaTravelTime_munichResident_u_min = 0.0176;
@@ -147,13 +157,20 @@ public class BavariaModeParameters extends ModeParameters {
 		parameters.bavariaCar.munichParkingSearchPenalty_min = 0.0; // off by default
 
 		// Car passenger (perceived costs are 0.00 EUR/km, hence no cost term)
-		parameters.bavariaCarPassenger.alpha_u = -2.0608;
-		parameters.bavariaCarPassenger.betaInVehicleTravelTime_u_min = -0.0638;
+		parameters.bavariaCarPassenger.alpha_u = -1.3259; // calibrated, estimated -2.0608
+		// Calibrated, estimated -0.0638 (SE 0.0083) - a large departure, ~8 standard
+		// errors, but the estimate put the median trip at 15.26 km against a 6 km
+		// reference, and -0.13 lands it at 6.08 km.
+		parameters.bavariaCarPassenger.betaInVehicleTravelTime_u_min = -0.13;
 		parameters.bavariaCarPassenger.betaInVehicleTravelTime_highIncome_u_min = -0.0374;
 
 		// PT
-		parameters.pt.alpha_u = -0.1226;
-		parameters.pt.betaInVehicleTime_u_min = -0.0126;
+		parameters.pt.alpha_u = 0.8452; // calibrated, estimated -0.1226
+		// Calibrated, estimated -0.0126 (SE 0.0040) - ~12 standard errors out. The
+		// estimate is an implausible 3.5 EUR/h and put the median trip at 13.47 km
+		// against 8 km. Note the residual is zonally split (munich +2.33 km, umland
+		// -3.29 km), so a single global value cannot satisfy both.
+		parameters.pt.betaInVehicleTime_u_min = -0.06;
 		parameters.pt.betaLineSwitch_u = -0.6149;
 		parameters.pt.betaWaitingTime_u_min = -0.2054;
 		parameters.bavariaPt.betaInVehicleTime_highIncome_u_min = -0.0148;
