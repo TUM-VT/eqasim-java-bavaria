@@ -1,6 +1,6 @@
 ﻿#!/bin/bash
-#SBATCH -J calibfin
-#SBATCH -o /dss/dsshome1/lxc09/ge37ser2/logs/run_calibfin_%j.txt
+#SBATCH -J raptor
+#SBATCH -o /dss/dsshome1/lxc09/ge37ser2/logs/run_raptor_%j.txt
 #SBATCH -D ./
 #SBATCH --get-user-env
 #SBATCH --mail-type=ALL
@@ -19,11 +19,11 @@
 EQUASIM_DIR=/dss/dssfs02/lwp-dss-0001/t5621/t5621-dss-0000/Roman_MINGA/RedoCalibration/eqasim-java-bavaria
 CALIB_DIR=${EQUASIM_DIR}/bavaria/src/main/python/calib
 RUN_SCRIPT_PATH=${CALIB_DIR}/run_calibration.py
-GRID_PATH=${CALIB_DIR}/asc_grid_final.json
+GRID_PATH=${CALIB_DIR}/raptor_grid.json
 
 # --- to be adapted ----
 # How many MATSim runs execute at the same time inside this one job.
-MAX_PARALLEL=2
+MAX_PARALLEL=6
 MATSIM_CPUS=4
 
 # Heap PER RUN. Rule of thumb: (job --mem / MAX_PARALLEL) minus a few GB headroom.
@@ -36,7 +36,7 @@ JAVA_XMX=30g
 MATSIM_POP_PATH=/dss/dssfs02/lwp-dss-0001/t5621/t5621-dss-0000/Roman_MINGA/RedoCalibration/munich_1pct/
 MATSIM_CONFIG_PATH=${MATSIM_POP_PATH}munich1pct_config.xml
 JAR=bavaria/target/bavaria-2.0.0.jar
-SCENARIO_NAME=asc_final
+SCENARIO_NAME=raptor
 RESULTS_ROOT=/dss/dssfs02/lwp-dss-0001/t5621/t5621-dss-0000/Roman_MINGA/RedoCalibration/results
 
 module load slurm_setup
