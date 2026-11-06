@@ -1,0 +1,194 @@
+"""Regenerate onlybus_grid.json - the onlyBus_u lever plus the pt ASC repair.
+
+WHERE WE STAND after the ptmode round. Best router candidate is k=2.8 / r=11.4:
+
+    U-Bahn        32.8 % -> 48.8 %   (target 59.9)
+    pt mvv share  +0.04  -> -1.77 pp (the whole share_mae increase sits on pt)
+    pt length     +0.83  -> +1.78 km
+
+So the router fixed two thirds of the U-Bahn gap but cost 1.8 pp of pt share,
+which is the quantity four calibration rounds had driven to 0.04 pp.
+
+TWO LEVERS, DIFFERENT MECHANISMS:
+
+  onlyBus_u  a constant penalty on pt trips served entirely by bus. Unlike k it
+             does not reroute anyone - it pushes that demand out of pt, so the
+             U-Bahn share among the REMAINING pt trips rises. The ptmode round
+             showed why this matters: penalising bus alone moved demand to tram
+             (12.8 -> 17.3 %), not to the U-Bahn. Bus and tram are close
+             substitutes; the U-Bahn is not reachable by reweighting.
+             Segment size: 47.9 % of pt trips are bus-only at REF, 35.4 % at
+             k=2.8 - large enough to have leverage.
+
+  pt.alpha_u repairs the pt total share that both levers suppress.
+
+CAUTION: onlyBus_u is NOT in Table 2. It is a calibration parameter, in the same
+category as the pt and car_passenger beta corrections, and should be declared as
+such. eqasim's IdF parametrisation carries -1.416 for it, so there is precedent
+for the magnitude.
+
+The A_* runs are UNCOMPENSATED so the share effect can be measured cleanly; the
+B_* runs carry an estimated ASC compensation. If the estimate is off, the A runs
+give the exact number to apply afterwards - the same pattern that worked for the
+bike beta.
+
+Run: python gen_onlybus_grid.py
+"""
+import json
+from pathlib import Path
+
+OUT = Path(__file__).with_name("onlybus_grid.json")
+
+RAPTOR = "--config:eqasim:raptor."
+ANCHOR = -2.162021
+WALK_NOW = -4.172657
+TRANSFER_NOW = -0.5441109
+
+PT_ALPHA = 0.8452          # calibrated value
+PT_GRADIENT = 5.97         # pp per utility, measured at the stage-4 centre
+PT_GAP_K28 = 1.77          # pp of pt share that k=2.8 costs
+BUS_ONLY_FRACTION = 0.354  # share of pt trips that are bus-only at k=2.8
+
+
+def raptor_args(k, ratio):
+    args = []
+    for key, f in [("travelTimeSubway_u_h", 1.0), ("travelTimeRail_u_h", 1.0),
+                   ("travelTimeBus_u_h", k), ("travelTimeOther_u_h", k),
+                   ("travelTimeTram_u_h", k)]:
+        args += [f"{RAPTOR}{key}", f"{ANCHOR * f:.4f}"]
+    args += [f"{RAPTOR}waitTime_u_h", f"{ANCHOR * ratio:.4f}"]
+    args += [f"{RAPTOR}walkTime_u_h", f"{WALK_NOW:.4f}"]
+    args += [f"{RAPTOR}perTransfer_u", f"{TRANSFER_NOW:.4f}"]
+    return args
+
+
+def compensated_alpha(only_bus):
+    """pt ASC that offsets both the k=2.8 loss and the onlyBus penalty.
+
+    The onlyBus term hits only the bus-only subset, so its share effect is
+    scaled by that subset. Crude - which is what the A_* runs are for.
+    """
+    extra_pp = BUS_ONLY_FRACTION * PT_GRADIENT * abs(only_bus)
+    return round(PT_ALPHA + (PT_GAP_K28 + extra_pp) / PT_GRADIENT, 4)
+
+
+def build_runs():
+    runs = [{
+        "name": "REF_k2.8_r11.4",
+        "parameters": {},
+        "extra_args": raptor_args(2.8, 11.4),
+    }]
+
+    # Uncompensated: measures the onlyBus share effect at this centre.
+    for ob in [-0.2, -0.4, -0.6]:
+        runs.append({
+            "name": f"A_onlybus{ob}_uncomp",
+            "parameters": {"bavariaPt.onlyBus_u": ob},
+            "extra_args": raptor_args(2.8, 11.4),
+        })
+
+    # Compensated: onlyBus plus an estimated pt ASC repair.
+    for ob in [-0.2, -0.4, -0.6]:
+        runs.append({
+            "name": f"B_onlybus{ob}_comp",
+            "parameters": {"bavariaPt.onlyBus_u": ob,
+                           "pt.alpha_u": compensated_alpha(ob)},
+            "extra_args": raptor_args(2.8, 11.4),
+        })
+
+    # The pure ASC repair, no onlyBus - the control for whether onlyBus earns
+    # its place at all.
+    for a in [1.05, compensated_alpha(0.0), 1.25]:
+        runs.append({
+            "name": f"C_asc{a}",
+            "parameters": {"pt.alpha_u": round(a, 4)},
+            "extra_args": raptor_args(2.8, 11.4),
+        })
+
+    # The r=5.5 branch: better pt length (+0.81 vs +1.78) and U-Bahn (52.0 vs
+    # 48.8), worse share before repair. Worth carrying one compensated point.
+    runs.append({
+        "name": "D_r5.5_asc_comp",
+        "parameters": {"pt.alpha_u": PT_ALPHA},
+        "extra_args": raptor_args(2.8, 5.5),
+    })
+    runs.append({
+        "name": "D_r5.5_onlybus-0.4_comp",
+        "parameters": {"bavariaPt.onlyBus_u": -0.4,
+                       "pt.alpha_u": compensated_alpha(-0.4)},
+        "extra_args": raptor_args(2.8, 5.5),
+    })
+
+    return runs
+
+
+def main():
+    runs = build_runs()
+
+    spec = {
+        "_comment": [
+            f"onlyBus_u lever plus pt ASC repair. {len(runs)} runs.",
+            "GENERATED by gen_onlybus_grid.py - regenerate, do not hand-edit.",
+            "",
+            "Starting point is the ptmode winner k=2.8 / r=11.4: U-Bahn 48.8 %",
+            "against 59.9, but pt share -1.77 pp against the 0.04 pp that four",
+            "calibration rounds had achieved.",
+            "",
+            "onlyBus_u works differently from the router weights: it does not",
+            "reroute, it removes bus-only demand from pt altogether, so the U-Bahn",
+            "share among the remaining pt trips rises. That matters because the",
+            "ptmode round showed penalising bus in the router moved demand to tram",
+            "(12.8 -> 17.3 %), not to the U-Bahn - bus and tram are close",
+            "substitutes and the U-Bahn is not reachable by reweighting.",
+            "47.9 % of pt trips are bus-only at REF, 35.4 % at k=2.8.",
+            "",
+            "A_*  uncompensated - the clean measurement of the share effect.",
+            "     Judge on U-Bahn share and the cross-section counts, not share_mae.",
+            "B_*  the same with an estimated pt ASC repair. The estimate scales the",
+            "     pt gradient by the bus-only fraction, which is crude; if it misses,",
+            "     the A runs give the exact compensation to apply afterwards.",
+            "C_*  pure ASC repair without onlyBus - the control. If C reaches the",
+            "     same place as B on shares, onlyBus only bought U-Bahn share, and",
+            "     the question becomes whether that is worth a non-estimated term.",
+            "D_*  the r=5.5 branch, which had better pt length (+0.81 vs +1.78 km)",
+            "     and U-Bahn (52.0 vs 48.8) but a worse share before repair.",
+            "",
+            "onlyBus_u IS NOT IN TABLE 2. It is a calibration parameter like the pt",
+            "and car_passenger beta corrections and has to be declared as one. The",
+            "eqasim IdF parametrisation uses -1.416, so the magnitudes here are",
+            "conservative by comparison.",
+            "",
+            "Note the term fires on isOnlyBus, which is 47.9 % of pt trips, while",
+            "the conceptual target - trips without U-Bahn or S-Bahn - is 54.2 %.",
+            "The 6 pp difference is bus+tram combinations, which the existing flag",
+            "does not catch. Worth a dedicated flag only if this lever proves out.",
+        ],
+        "base": {
+            "car.alpha_u": 0.0,
+            "walk.alpha_u": 0.0267,
+            "bike.alpha_u": -1.1293,
+            "bavariaCarPassenger.alpha_u": -1.3259,
+            "pt.alpha_u": PT_ALPHA,
+            "bavariaCarPassenger.betaInVehicleTravelTime_u_min": -0.13,
+            "pt.betaInVehicleTime_u_min": -0.06,
+            "bavariaPt.onlyBus_u": 0.0,
+        },
+        "extra_args": ["--use-vdf", "true"],
+        "runs": runs,
+    }
+
+    OUT.write_text(json.dumps(spec, indent=2) + "\n", encoding="utf-8")
+    print(f"wrote {OUT.name} with {len(runs)} runs\n")
+    print(f"{'run':28} {'onlyBus':>9} {'pt.alpha':>9}  raptor")
+    for r in runs:
+        p = r["parameters"]
+        ea = r["extra_args"]
+        d = {ea[i].replace(RAPTOR, ""): float(ea[i + 1]) for i in range(0, len(ea), 2)}
+        ratio = d["waitTime_u_h"] / d["travelTimeSubway_u_h"]
+        k = d["travelTimeBus_u_h"] / d["travelTimeSubway_u_h"]
+        print(f"{r['name']:28} {p.get('bavariaPt.onlyBus_u', 0.0):>9} "
+              f"{p.get('pt.alpha_u', PT_ALPHA):>9}  k={k:.1f} r={ratio:.1f}")
+
+
+if __name__ == "__main__":
+    main()

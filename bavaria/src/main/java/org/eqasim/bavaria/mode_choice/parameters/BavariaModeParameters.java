@@ -62,6 +62,14 @@ public class BavariaModeParameters extends ModeParameters {
 		public double betaWaitingTime_munichResident_u_min;
 		public double betaWaitingTime_ptSubscription_u_min;
 		public double betaWaitingTime_carAvailable_u_min;
+
+		/**
+		 * Constant penalty on pt trips served entirely by bus. Not part of
+		 * Mueller/Engelhardt Table 2 - it is a calibration lever for the pt
+		 * sub-mode split, which the router weights alone could not close.
+		 * Off (0.0) unless a scenario sets it.
+		 */
+		public double onlyBus_u;
 	}
 
 	public class BavariaDrtParameters {
@@ -178,6 +186,7 @@ public class BavariaModeParameters extends ModeParameters {
 		parameters.bavariaPt.betaWaitingTime_munichResident_u_min = 0.0978;
 		parameters.bavariaPt.betaWaitingTime_ptSubscription_u_min = 0.2615;
 		parameters.bavariaPt.betaWaitingTime_carAvailable_u_min = -0.1660;
+		parameters.bavariaPt.onlyBus_u = 0.0; // off by default, see BavariaPtParameters
 
 		// DRT / AMOD
 		parameters.bavariaDrt.alpha_u = -0.7274;

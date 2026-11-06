@@ -75,6 +75,10 @@ public class BavariaPtUtilityEstimator implements UtilityEstimator {
 		return beta * ptVariables.inVehicleTime_min;
 	}
 
+	protected double estimateOnlyBusUtility(BavariaPtVariables variables) {
+		return variables.isOnlyBus ? parameters.bavariaPt.onlyBus_u : 0.0;
+	}
+
 	protected double estimateMonetaryCostUtility(BavariaPtVariables variables, double cost_EUR) {
 		return parameters.betaCost_u_MU * EstimatorUtils.interaction(variables.euclideanDistance_km,
 				parameters.referenceEuclideanDistance_km, parameters.lambdaCostEuclideanDistance) * cost_EUR;
@@ -94,6 +98,7 @@ public class BavariaPtUtilityEstimator implements UtilityEstimator {
 		utility += estimateLineSwitchUtility(ptVariables);
 		utility += estimateWaitingTimeUtility(ptVariables, personVariables);
 		utility += estimateInVehicleTimeUtility(ptVariables, personVariables);
+		utility += estimateOnlyBusUtility(ptVariables);
 		utility += estimateMonetaryCostUtility(ptVariables, cost_EUR);
 
 		return utility;
