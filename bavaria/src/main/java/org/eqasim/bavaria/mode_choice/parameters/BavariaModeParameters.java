@@ -173,7 +173,11 @@ public class BavariaModeParameters extends ModeParameters {
 		parameters.bavariaCarPassenger.betaInVehicleTravelTime_highIncome_u_min = -0.0374;
 
 		// PT
-		parameters.pt.alpha_u = 0.8452; // calibrated, estimated -0.1226
+		// Calibrated, estimated -0.1226. Belongs together with the eqasim:raptor
+		// weights in the scenario config: it repairs the 1.8 pp of pt share that
+		// penalising bus/tram in the router (k=2.8) costs. Changing one without
+		// the other breaks the fit.
+		parameters.pt.alpha_u = 1.2122;
 		// Calibrated, estimated -0.0126 (SE 0.0040) - ~12 standard errors out. The
 		// estimate is an implausible 3.5 EUR/h and put the median trip at 13.47 km
 		// against 8 km. Note the residual is zonally split (munich +2.33 km, umland
